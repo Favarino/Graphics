@@ -1,8 +1,12 @@
-#include "crenderutils.h"
+#include "window.h"
 
 int main()
 {
-	test();
+	Window window;
+	window.init();
+	while (window.step());
+
+	window.term();
 	//shit bruh
 	return 0;
 }
