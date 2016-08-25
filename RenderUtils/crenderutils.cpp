@@ -84,3 +84,16 @@ void freeShader(Shader & shader)
 	glDeleteProgram(shader.handle);
 	shader.handle = 0;
 }
+
+void draw(const Shader &shader, const Geometry &geo)
+{
+	glUseProgram(shader.handle);
+
+	//binding the vao also binds the ibo(tri) and vbo(verts)
+	glBindVertexArray(geo.vao);
+
+	//draw elements will draw the vertices that are currently bound
+	//using an array of indices
+	//if an ibo is bount, we dont need to provide and indices
+	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
+}

@@ -24,4 +24,4 @@ Shader makeShader(const char *vsource, const char *fsource);
 
 void freeShader(Shader &shader);
 
-void draw(const Shader &, const Geometry &);
+void draw(const Shader &shader, const Geometry &geo);
