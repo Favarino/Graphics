@@ -3,7 +3,6 @@
 int main()
 {
 	test();
-
-
+	//shit bruh
 	return 0;
 }
