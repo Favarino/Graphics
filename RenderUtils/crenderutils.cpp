@@ -10,9 +10,9 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	Geometry returnVal;
 
 	//define the vaiables
-	glCreateBuffers(1, &returnVal.vbo);      //store my vertices
-	glCreateBuffers(1, &returnVal.ibo);      //store indeices
-	glCreateVertexArrays(1, &returnVal.vao); //store attribute information
+	glGenBuffers(1, &returnVal.vbo);      //store my vertices
+	glGenBuffers(1, &returnVal.ibo);      //store indeices
+	glGenVertexArrays(1, &returnVal.vao); //store attribute information
 	
     //scope the variables
 	glBindVertexArray(returnVal.vao);
@@ -52,31 +52,26 @@ void freeGeometry(Geometry &geo)
 
 Shader makeShader(const char * vsource, const char * fsource)
 {
-	Shader returnVal;
-
-	//create variables
-	returnVal.handle = glCreateProgram();
+	Shader retval;
+	// create our variables
+	retval.handle = glCreateProgram();
 	unsigned vs = glCreateShader(GL_VERTEX_SHADER);
 	unsigned fs = glCreateShader(GL_FRAGMENT_SHADER);
-
-	//intialize variables
+	// initialize our variables
 	glShaderSource(vs, 1, &vsource, 0);
 	glShaderSource(fs, 1, &fsource, 0);
-
-	//compile shaders
+	// compile the shaders
 	glCompileShader(vs);
 	glCompileShader(fs);
-
-	//linkshaders into a single program
-	glAttachShader(returnVal.handle, vs);
-	glAttachShader(returnVal.handle, fs);
-	glLinkProgram(returnVal.handle);
-
-	//no longer need these! their functionality has been eaten by the program
+	// link the shaders into a single program
+	glAttachShader(retval.handle, vs);
+	glAttachShader(retval.handle, fs);
+	glLinkProgram(retval.handle);
+	// no longer need these! Their functionality has been eaten by the program.
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	return returnVal;
+	return retval;
 }
 
 void freeShader(Shader & shader)
