@@ -5,7 +5,7 @@
 #include "crenderutils.h"
 
 
-Geometry makeGeometry(Vertex * verts, size_t vsize, unsigned int * tris, size_t tsize)
+Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * tris, size_t tsize)
 {
 	Geometry returnVal;
 
@@ -48,4 +48,39 @@ void freeGeometry(Geometry &geo)
 	glDeleteVertexArrays(1, &geo.vao);
 	geo = { 0,0,0,0 };
 
+}
+
+Shader makeShader(const char * vsource, const char * fsource)
+{
+	Shader returnVal;
+
+	//create variables
+	returnVal.handle = glCreateProgram();
+	unsigned vs = glCreateShader(GL_VERTEX_SHADER);
+	unsigned fs = glCreateShader(GL_FRAGMENT_SHADER);
+
+	//intialize variables
+	glShaderSource(vs, 1, &vsource, 0);
+	glShaderSource(fs, 1, &fsource, 0);
+
+	//compile shaders
+	glCompileShader(vs);
+	glCompileShader(fs);
+
+	//linkshaders into a single program
+	glAttachShader(returnVal.handle, vs);
+	glAttachShader(returnVal.handle, fs);
+	glLinkProgram(returnVal.handle);
+
+	//no longer need these! their functionality has been eaten by the program
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	return returnVal;
+}
+
+void freeShader(Shader & shader)
+{
+	glDeleteProgram(shader.handle);
+	shader.handle = 0;
 }

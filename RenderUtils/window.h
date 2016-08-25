@@ -9,7 +9,7 @@ private:
 	bool isInitialized = false;
 
 	//forward declaration (telling computer this type exists just not in this file)
-	class GLFWwindow *winHandle;
+	struct GLFWwindow *winHandle;
 
 public:
 	// a_ stands for arguement
