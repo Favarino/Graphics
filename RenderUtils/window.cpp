@@ -32,7 +32,7 @@ bool Window::init(int a_width, int a_height, char * a_title)
 	isInitialized = true;
 	glewExperimental = true;
 	glewInit();
-	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(0.4f, .9f, 0.8f, 1.0f);
 
 	
 #ifdef _DEBUG

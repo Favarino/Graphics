@@ -15,6 +15,8 @@ Geometry makeGeometry(const struct Vertex *verts, size_t vsize, const unsigned i
 
 void freeGeometry(Geometry &geo);
 
+Geometry loadOBJ(const char *path);
+
 struct Shader
 {
 	unsigned handle;

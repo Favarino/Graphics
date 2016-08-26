@@ -3,6 +3,11 @@
 #include "GLEW\glew.h"
 #include "vertex.h"
 #include "crenderutils.h"
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "OBJ\tiny_obj_loader.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 
 Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * tris, size_t tsize)
@@ -112,9 +117,7 @@ void draw(const Shader &shader, const Geometry &geo)
 	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
 }
 
-#include <iostream>
-#include <fstream>
-using namespace std;
+
 
 char* fileToArray(const char *path)
 {
@@ -156,4 +159,24 @@ Shader loadShader(const char * vpath, const char * fpath)
 	char *Fsource = fileToArray(fpath);
 
 	return makeShader(Vsource, Fsource);
+}
+Geometry loadOBJ(const char * path)
+{
+	tinyobj::attrib_t attrib;
+	vector<tinyobj::shape_t> shapes;
+	vector<tinyobj::material_t> materials;
+	string err;
+
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path);
+
+	Vertex *verts = new Vertex[attrib.vertices / size() / 3];
+
+	for (int i = 0; i < attrib.vertices.size(); i+=3)
+	{
+		verts[i] = { attrib.vertices[i],
+					 attrib.vertices[i + 1],
+					 attrib.vertices[i + 2], 1};
+	}
+
+	return Geometry();
 }
