@@ -19,8 +19,7 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	glBindBuffer(GL_ARRAY_BUFFER, returnVal.vbo); //scope our vertices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, returnVal.ibo); //triangle is scoped
 
-	//intialize the variables
-	new float[4];
+	//intialize the variable
 	glBufferData(GL_ARRAY_BUFFER, vsize * sizeof(Vertex), verts, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, tsize * sizeof(unsigned), tris, GL_STATIC_DRAW);
 

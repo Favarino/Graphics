@@ -9,6 +9,9 @@ int main()
 	Vertex vert[3] = { {0.0f,.5f,0,1,.8f,0,.2f,0},
 					   {.5f,-.5f,0,1,0,1,1,1},
 					   {-.5f,-.5f,0,1,1,.4f,1,1} };
+	Vertex vert2[3] = { { 0.1f,.3f,0,1,1,0,.0,1 },
+						{ .2f,-.2f,0,1,1,1,0,1 },
+						{ -.2f,-.2f,0,1,0,1,1,0 } };
 
 	unsigned tris[3] = { 0,1,2 };
 
@@ -27,11 +30,13 @@ int main()
 
 
 	Geometry geometry = makeGeometry(vert, 3, tris, 3);
+	Geometry geometry2 = makeGeometry(vert2, 3, tris, 3);
 	Shader shader = makeShader(vsource, fsource);
 
 	while (window.step())
 	{
 		draw(shader, geometry);
+		draw(shader, geometry2);
 	}
 
 	freeGeometry(geometry);
