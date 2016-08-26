@@ -34,6 +34,7 @@ bool Window::init(int a_width, int a_height, char * a_title)
 	glewInit();
 	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 
+	
 #ifdef _DEBUG
 
 	glEnable(GL_DEBUG_OUTPUT);

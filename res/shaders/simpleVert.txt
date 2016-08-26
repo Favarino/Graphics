@@ -1,0 +1,19 @@
+#version 330
+
+//locations are the 'attributes from the vertex
+//in brings data from the previous
+
+layout(location = 1)in vec4 color;
+layout(location = 0)in vec4 position; // float all[8];
+
+
+//out sends data to the new step of the pipeline
+flat out vec4 vColor;
+
+void main() 
+{ 
+
+	vColor = color; 
+	gl_Position = position; 
+
+}

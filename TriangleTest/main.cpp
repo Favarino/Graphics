@@ -12,24 +12,12 @@ int main()
 	
 
 	unsigned tris[3] = { 0,1,2 };
-
-	const char vsource[] =
-							"#version 330\n"
-							"layout(location = 0)in vec4 position;"
-							"layout(location = 1)in vec4 color;"
-							"out vec4 vColor;"
-							"void main() { vColor = color; gl_Position = position; }";
-
-	const char fsource[] =
-							"#version 330\n"
-							"in vec4 vColor;"
-							"out vec4 outColor;"
-							"void main () { outColor = vColor + vColor; } ";
-
+							
 
 	Geometry geometry = makeGeometry(vert, 3, tris, 3);
-	
-	Shader shader = makeShader(vsource, fsource);
+	//Shader shader1 = makeShader(vsource, fsource);
+	Shader shader = loadShader("../res/shaders/simpleVert.txt",
+								"../res/shaders/simpleFrag.txt");
 
 	while (window.step())
 	{

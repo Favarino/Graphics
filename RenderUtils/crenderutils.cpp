@@ -26,10 +26,30 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	//attributes let us tell opengl how the memory is laid out
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
 
 	//index of the attribute, number of elements,type,normalized?,size of vertex, offset
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)16);
+	//glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)32);
+	
+
+
+	/*
+		struct Vertex // 32 bytes
+		{
+			float position[4]; //4, 4, 4, 4
+			float color[4];    //4, 4, 4, 4, starts on byte 16
+	
+		};
+
+		Vertex myVert;
+
+		&myVert + 16
+	
+	*/
+
+
 
 	//unscope the variables
 	glBindVertexArray(0);
@@ -90,4 +110,50 @@ void draw(const Shader &shader, const Geometry &geo)
 	//using an array of indices
 	//if an ibo is bount, we dont need to provide and indices
 	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
+}
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+char* fileToArray(const char *path)
+{
+	int array_size = 5012;
+	char * array = new char[array_size];
+	int position = 0;
+
+	ifstream fin(path);
+
+	if (fin.is_open())
+	{
+		cout << "File opened!" << endl;
+
+		while (!fin.eof() && position < array_size)
+		{
+			fin.get(array[position]);
+			position++;
+		}
+		array[position - 1] = '\0';
+
+		cout << "Displaying array..." << endl << endl;
+
+		for (int i = 0; array[i] != '\0'; i++)
+		{
+			cout << array[i];
+		}
+	}
+	else
+	{
+		cout << "File could not be opened." << endl; 
+	}
+	return array;
+
+}
+
+Shader loadShader(const char * vpath, const char * fpath)
+{
+	char *Vsource = fileToArray(vpath);
+	char *Fsource = fileToArray(fpath);
+
+	return makeShader(Vsource, Fsource);
 }
