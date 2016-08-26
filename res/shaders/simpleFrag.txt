@@ -1,11 +1,11 @@
 #version 330
 
-//in vec4 vColor;
+in vec4 vColor;
 in vec4 vPosition;
 out vec4 outColor;
 
 void main () 
 { 
-	outColor.r = abs(cos(vPosition.x*100));
-	outColor.b = abs(cos(vPosition.x*100)); 
+	outColor = vColor;
+	
 }

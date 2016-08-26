@@ -160,6 +160,7 @@ Shader loadShader(const char * vpath, const char * fpath)
 
 	return makeShader(Vsource, Fsource);
 }
+#include <random>
 Geometry loadOBJ(const char * path)
 {
 	tinyobj::attrib_t attrib;
@@ -177,6 +178,10 @@ Geometry loadOBJ(const char * path)
 		verts[i] = { attrib.vertices[i*3],
 					 attrib.vertices[i*3+1],
 					 attrib.vertices[i*3+2], 1};
+		verts[i].color[0] = rand() * 1.0f / RAND_MAX;
+		verts[i].color[1] = rand() * 1.0f / RAND_MAX;
+		verts[i].color[2] = rand() * 1.0f / RAND_MAX;
+		verts[i].color[3] = 1;
 	}
 
 	for (int i = 0; i < shapes[0].mesh.indices.size(); ++i)

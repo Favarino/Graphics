@@ -8,13 +8,13 @@ layout(location = 0)in vec4 position; // float all[8];
 
 
 //out sends data to the new step of the pipeline 
-//out vec4 vColor;
+out vec4 vColor;
 out vec4 vPosition;
 
 void main() 
 { 
 
-	//vColor = color; 
+	vColor = color; 
 	vPosition = position;
 	gl_Position = position; 
 
