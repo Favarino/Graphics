@@ -4,8 +4,13 @@ in vec4 vColor;
 in vec4 vPosition;
 out vec4 outColor;
 
+uniform float time = 0.0f;
+
 void main () 
 { 
 	outColor = vColor;
-	
+
+	outColor.r += cos(time * vPosition.y) / 2.0;
+	outColor.b -= cos(time * vPosition.x) / 2.0;	
+	outColor.g += cos(time * vPosition.w) / 2.0;
 }

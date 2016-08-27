@@ -117,6 +117,20 @@ void draw(const Shader &shader, const Geometry &geo)
 	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
 }
 
+void draw(const Shader &shader, const Geometry &geo, float time)
+{
+	glUseProgram(shader.handle);
+	glBindVertexArray(geo.vao);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	int loc = glGetUniformLocation(shader.handle, "time");
+
+	glUniform1f(loc, time);
+
+	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
+}
+
 
 
 char* fileToArray(const char *path)
@@ -178,10 +192,10 @@ Geometry loadOBJ(const char * path)
 		verts[i] = { attrib.vertices[i*3],
 					 attrib.vertices[i*3+1],
 					 attrib.vertices[i*3+2], 1};
-		verts[i].color[0] = rand() * 1.0f / RAND_MAX;
+		/*verts[i].color[0] = rand() * 1.0f / RAND_MAX;
 		verts[i].color[1] = rand() * 1.0f / RAND_MAX;
 		verts[i].color[2] = rand() * 1.0f / RAND_MAX;
-		verts[i].color[3] = 1;
+		verts[i].color[3] = 1;*/
 	}
 
 	for (int i = 0; i < shapes[0].mesh.indices.size(); ++i)

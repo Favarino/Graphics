@@ -10,12 +10,16 @@ layout(location = 0)in vec4 position; // float all[8];
 //out sends data to the new step of the pipeline 
 out vec4 vColor;
 out vec4 vPosition;
-
+uniform float time = 0.0f;
 void main() 
 { 
+	
+	gl_Position = position;
+	gl_Position.x *= (cos(time + position.x)) / sin(time/position.y);
+	//gl_Position.y *= sin(cos(time * time + position.y *10)) * tan(time+position.y);
+	gl_Position.w *= sin(cos(time * time + position.y *10)) * tan(time+position.y);
 
 	vColor = color; 
 	vPosition = position;
-	gl_Position = position; 
-
+	
 }

@@ -9,7 +9,18 @@ bool Gallery::makeShader(const char * name, const char * vsource, const char * f
 
 bool Gallery::loadShader(const char * name, const char * vpath, const char * fpath)
 {
-	shaders[name] = ::loadShader(vpath, fpath);
+	if (!shaders.count(name))
+	{
+		shaders[name] = ::loadShader(vpath, fpath);
+		if (shaders[name].handle == 0)
+		{
+			fprintf(stderr, "Shader %s failed to load correctly!\n", name);
+			shaders.erase(name);
+		}
+		fprintf(stderr, "Shader %s loaded sucessfully!", name);
+		return true;
+	}
+	else
 	return false;
 }
 
@@ -37,9 +48,9 @@ const Shader & Gallery::getShader(const char * name)
 
 bool Gallery::init()
 {
-	loadObjectOBJ("Sphere", "../res/models/sphere.obj");
+	loadObjectOBJ("Cube", "../res/models/cube.obj");
 	loadShader("Test", "../res/shaders/simpleVert.txt", "../res/shaders/simpleFrag.txt");
-	return false;
+	return true;
 }
 
 bool Gallery::term()
