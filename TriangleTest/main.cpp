@@ -15,7 +15,7 @@ int main()
 	while (window.step())
 	{
 		time += 0.016667f;
-		draw(gallery.getShader("Test"), gallery.getObject("Sphere"),time);		
+		draw(gallery.getShader("Test"), gallery.getObject("Cube"),time);		
 	}
 
 	gallery.term();
