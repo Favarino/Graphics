@@ -91,6 +91,19 @@ Shader makeShader(const char * vsource, const char * fsource)
 	glAttachShader(retval.handle, vs);
 	glAttachShader(retval.handle, fs);
 	glLinkProgram(retval.handle);
+
+	GLint program_linked;
+	glGetProgramiv(retval.handle, GL_LINK_STATUS, &program_linked);
+	if (program_linked != GL_TRUE)
+	{
+		GLsizei log_length = 0;
+		GLchar message[1024];
+		glGetProgramInfoLog(retval.handle, 1024, &log_length, message);
+		// Write the error to a log
+
+		fprintf(stderr, "%s", message);
+	}
+
 	// no longer need these! Their functionality has been eaten by the program.
 	glDeleteShader(vs);
 	glDeleteShader(fs);
@@ -129,6 +142,18 @@ void draw(const Shader &shader, const Geometry &geo, float time)
 	glUniform1f(loc, time);
 
 	glDrawElements(GL_TRIANGLES, geo.size, GL_UNSIGNED_INT, 0);
+}
+
+void draw(const Shader & s, const Geometry & g, const float M[16], const float V[16], const float P[16])
+{
+	glUseProgram(s.handle);
+	glBindVertexArray(g.vao);
+
+	glUniformMatrix4fv(0, 1, GL_FALSE, P);
+	glUniformMatrix4fv(1, 1, GL_FALSE, V);
+	glUniformMatrix4fv(2, 1, GL_FALSE, M);
+
+	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
 
 

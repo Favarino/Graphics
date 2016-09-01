@@ -1,0 +1,14 @@
+#version 330
+
+in vec4 vColor;
+in vec4 vPosition;
+out vec4 outColor;
+
+uniform float time = 0.0f;
+
+void main () 
+{ 
+	outColor = vColor;
+	outColor.g = 1;
+	outColor.b = .6f;
+}
