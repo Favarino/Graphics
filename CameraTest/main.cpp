@@ -8,21 +8,36 @@
 #include "timer.h"
 #include "input.h"
 #include "camera.h"
+#include "globjects.h"
 int main()
 {
 	Window window;
 	Timer time;
 	Input input;
+	Gallery gallery;
+	FlyCamera cam;
+
 	window.init();
 	input.init(window);
 	time.init();
-	Gallery gallery;
-	FlyCamera cam;
+
+	unsigned char pixels[] = {255,255,0};
+	//Texture tex = makeTexture(1, 1, 0x1907, pixels);
+
+	gallery.loadTexture("Face","../res/textures/face_tex.png");
+
+	Vertex verts[] = { {-1,-1,0,1}, {-1,1,0,1},
+					   {1,1,0,1},{1,-1,0,1} };
+
+	unsigned tris[] = { 0,1,2,2,3,0 };
+
+	gallery.makeObject("Quad", verts, 4, tris, 6);
+	
 
 	cam.jumpTo(glm::vec3(5, 5, 5));
 	cam.lookAt(glm::vec3(0, 0, 0));
 
-	gallery.loadShader("CAMERA", "../res/shaders/cameraVert.txt", "../res/shaders/cameraFrag.txt");
+	gallery.loadShader("TEXTURE", "../res/shaders/textureVert.txt", "../res/shaders/textureFrag.txt");
 
 	gallery.loadObjectOBJ("Cube", "../res/models/cube.obj");
 
@@ -49,8 +64,11 @@ int main()
 
 		cam.update(input, time);
 
-		draw(gallery.getShader("CAMERA"), gallery.getObject("Cube"),
-			glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj),i);
+		draw(gallery.getShader("TEXTURE"),gallery.getObject("Quad"),gallery.getTexture("Face"),
+			glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj), i);
+
+		//draw(gallery.getShader("TEXTURE"), gallery.getObject("Cube"),tex,
+			//glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj),i);
 	}
 
 	gallery.term();

@@ -46,6 +46,37 @@ const Shader & Gallery::getShader(const char * name)
 	return shaders[name];
 }
 
+const Texture & Gallery::getTexture(const char * name)
+{
+	return textures[name];
+}
+
+
+
+bool Gallery::loadTexture(const char *name, const char * path)
+{
+	if (!textures.count(name))
+	{
+		textures[name] = ::loadTexture(path);
+		if (textures[name].handle == 0)
+		{
+			fprintf(stderr, "textures %s failed to load correctly!\n", name);
+			textures.erase(name);
+		}
+		fprintf(stderr, "textures %s loaded sucessfully!", name);
+		return true;
+	}
+	else
+		return false;
+}
+
+bool Gallery::makeTexture(const char *name, unsigned  width, unsigned  height,
+						unsigned  format, const unsigned char * pixels)
+{
+	textures[name] = ::makeTexture(width, height, format, pixels);
+	return true;
+}
+
 bool Gallery::init()
 {
 	loadObjectOBJ("Cube", "../res/models/cube.obj");
@@ -62,6 +93,10 @@ bool Gallery::term()
 	for each (auto object in objects)
 	{
 		freeGeometry(object.second);
+	}
+	for each (auto texture in textures)
+	{
+		freeTexture(texture.second);
 	}
 	return false;
 }

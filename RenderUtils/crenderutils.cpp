@@ -1,5 +1,5 @@
+#pragma region Includes
 #define GLEW_STATIC
-
 #include "GLEW\glew.h"
 #include "vertex.h"
 #include "crenderutils.h"
@@ -7,8 +7,48 @@
 #include "OBJ\tiny_obj_loader.h"
 #include <iostream>
 #include <fstream>
+#include "globjects.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <STB\stb_image.h>
+#include <random>
 using namespace std;
+#pragma endregion
 
+char* fileToArray(const char *path)
+{
+	int array_size = 5012;
+	char * array = new char[array_size];
+	int position = 0;
+
+	ifstream fin(path);
+
+	if (fin.is_open())
+	{
+		cout << "File opened!" << endl;
+
+		while (!fin.eof() && position < array_size)
+		{
+			fin.get(array[position]);
+			position++;
+		}
+		array[position - 1] = '\0';
+
+		cout << "Displaying array..." << endl << endl;
+
+		for (int i = 0; array[i] != '\0'; i++)
+		{
+			cout << array[i];
+		}
+	}
+	else
+	{
+		cout << "File could not be opened." << endl; 
+	}
+	return array;
+
+}
+
+#pragma region MakeFunctions
 
 Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * tris, size_t tsize)
 {
@@ -65,15 +105,6 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	return returnVal;
 }
 
-void freeGeometry(Geometry &geo)
-{
-	glDeleteBuffers(1, &geo.vbo);
-	glDeleteBuffers(1, &geo.ibo);
-	glDeleteVertexArrays(1, &geo.vao);
-	geo = { 0,0,0,0 };
-
-}
-
 Shader makeShader(const char * vsource, const char * fsource)
 {
 	Shader retval;
@@ -111,12 +142,50 @@ Shader makeShader(const char * vsource, const char * fsource)
 	return retval;
 }
 
+Texture makeTexture(unsigned width, unsigned height, unsigned format, const unsigned char *pixels)
+{
+	Texture retval = { 0,width,height,format };
+	
+	glGenTextures(1, &retval.handle);				//Declaration
+	glBindTexture(GL_TEXTURE_2D, retval.handle);	//Scoping
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	
+
+	return retval;
+}
+#pragma endregion
+
+#pragma region FreeFunctions
+void freeGeometry(Geometry &geo)
+{
+	glDeleteBuffers(1, &geo.vbo);
+	glDeleteBuffers(1, &geo.ibo);
+	glDeleteVertexArrays(1, &geo.vao);
+	geo = { 0,0,0,0 };
+
+}
+
 void freeShader(Shader & shader)
 {
 	glDeleteProgram(shader.handle);
 	shader.handle = 0;
 }
 
+void freeTexture(Texture &t)
+{
+	glDeleteTextures(1, &t.handle);
+	t = { 0,0,0,0 };
+}
+#pragma endregion
+
+#pragma region DrawFunctions
 void draw(const Shader &shader, const Geometry &geo)
 {
 	glUseProgram(shader.handle);
@@ -157,42 +226,25 @@ void draw(const Shader & s, const Geometry & g, const float M[16], const float V
 	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
 
-
-
-char* fileToArray(const char *path)
+void draw(const Shader & s, const Geometry & g, const Texture &t, const float M[16], const float V[16], const float P[16], float i)
 {
-	int array_size = 5012;
-	char * array = new char[array_size];
-	int position = 0;
+	glUseProgram(s.handle);
+	glBindVertexArray(g.vao);
 
-	ifstream fin(path);
+	glUniformMatrix4fv(0, 1, GL_FALSE, P);
+	glUniformMatrix4fv(1, 1, GL_FALSE, V);
+	glUniformMatrix4fv(2, 1, GL_FALSE, M);
+	glUniform1f(3, i);
 
-	if (fin.is_open())
-	{
-		cout << "File opened!" << endl;
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, t.handle);
+	glUniform1i(4, 0);
 
-		while (!fin.eof() && position < array_size)
-		{
-			fin.get(array[position]);
-			position++;
-		}
-		array[position - 1] = '\0';
-
-		cout << "Displaying array..." << endl << endl;
-
-		for (int i = 0; array[i] != '\0'; i++)
-		{
-			cout << array[i];
-		}
-	}
-	else
-	{
-		cout << "File could not be opened." << endl; 
-	}
-	return array;
-
+	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
+#pragma endregion
 
+#pragma region LoadFunctions
 Shader loadShader(const char * vpath, const char * fpath)
 {
 	char *Vsource = fileToArray(vpath);
@@ -200,7 +252,7 @@ Shader loadShader(const char * vpath, const char * fpath)
 
 	return makeShader(Vsource, Fsource);
 }
-#include <random>
+
 Geometry loadOBJ(const char * path)
 {
 	tinyobj::attrib_t attrib;
@@ -235,3 +287,35 @@ Geometry loadOBJ(const char * path)
 	// then we can call makeGeometry as per normal.
 	return retval;
 }
+
+Texture loadTexture(const char * path)
+{
+	int w, h, f;
+	unsigned char *p;
+
+	Texture retval = { 0,0,0,0 };
+
+	stbi_set_flip_vertically_on_load(true);
+
+	p = stbi_load(path, &w, &h, &f, STBI_default);
+
+	if(!p) return retval;
+
+	switch (f)
+	{
+	case STBI_grey		: f = GL_RED;  break;
+	case STBI_grey_alpha: f = GL_RG;   break;
+	case STBI_rgb		: f = GL_RGB;  break;
+	case STBI_rgb_alpha : f = GL_RGBA; break;
+	}
+
+	retval = makeTexture(w, h, f, p);
+	stbi_image_free(p);
+	return retval;
+}
+#pragma endregion
+
+
+
+
+
