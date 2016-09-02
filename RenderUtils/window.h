@@ -4,6 +4,8 @@
 class Window
 {
 private:
+	friend class Input;
+
 	int width, height;
 	char title[64];
 	bool isInitialized = false;
@@ -13,7 +15,7 @@ private:
 
 public:
 	// a_ stands for arguement
-	bool init(int a_width = 800, int a_height = 600, char*a_title= "Window"); //Start
+	bool init(int a_width = 1280, int a_height = 720, char*a_title= "Window"); //Start
 	bool step();															 //Update
 	bool term();															//Terminate
 };

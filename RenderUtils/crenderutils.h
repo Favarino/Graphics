@@ -32,4 +32,4 @@ void draw(const Shader &shader, const Geometry &geo);
 
 void draw(const Shader &shader, const Geometry &geo, float time);
 
-void draw(const Shader &s, const Geometry &g, const float M[16], const float V[16], const float P[16]);
+void draw(const Shader &s, const Geometry &g, const float M[16], const float V[16], const float P[16], float i);

@@ -1,7 +1,8 @@
-#version 330
+#version 450
 
 in vec4 vColor;
 in vec4 vPosition;
+in float variable;
 out vec4 outColor;
 
 uniform float time = 0.0f;
@@ -9,6 +10,6 @@ uniform float time = 0.0f;
 void main () 
 { 
 	outColor = vColor;
-	outColor.g = 1;
+	outColor.g = .5f * variable;
 	outColor.b = .6f;
 }
