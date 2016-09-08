@@ -299,7 +299,13 @@ for (int i = 0; i < vsize; i++)
 
 	verts[i].position = glm::vec4(p[0], p[1], p[2], 1.f);
 	verts[i].normal = glm::vec4(n[0], n[1], n[2], 0.f);
-	verts[i].texcoord = glm::vec2(t[0],t[1]);
+	//verts[i].texcoord = glm::vec2(t[0],t[1]);
+
+	if (ind.texcoord_index >= 0)
+	{
+		const float *t = &attrib.texcoords[ind.texcoord_index * 2];
+		verts[i].texcoord = glm::vec2(t[0],t[1]);
+	}
 
 	tris[i] = i;
 }

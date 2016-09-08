@@ -8,9 +8,11 @@ layout(location = 1)uniform mat4 view;
 layout(location = 2)uniform mat4 model;
 
 out vec4 vNormal;
+out vec4 vPos;
 
 void main()
 {
 	vNormal = model * normal;
+	vPos = model * position;
 	gl_Position = proj*view*model*position;
 }

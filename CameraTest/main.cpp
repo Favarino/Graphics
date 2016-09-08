@@ -22,7 +22,7 @@ int main()
 	input.init(window);
 	time.init();
 
-	glm::mat4 view = glm::lookAt(glm::vec3(5.f, 5.f, 5.f), //eye
+	glm::mat4 view = glm::lookAt(glm::vec3(2.f, 2.f, 2.f), //eye
 								 glm::vec3(0.f, 0.f, 0.f), //center
 								 glm::vec3(0.f, 1.f, 0.f));//up
 
@@ -32,6 +32,8 @@ int main()
 	Geometry cube = loadOBJ("../res/models/cube.obj");
 
 	Geometry sphere = loadOBJ("../res/models/sphere.obj");
+
+	Geometry wheezer = loadOBJ("../res/models/mrwheezer.obj");
 
 	Shader shader = loadShader("../res/shaders/phongVert.txt", 
 							   "../res/shaders/phongFrag.txt");
@@ -45,7 +47,7 @@ int main()
 		glm::mat4 modelC = glm::rotate(timer, glm::normalize(glm::vec3(0, 1, 1)));
 		glm::mat4 modelS = glm::translate(glm::vec3(0, cos(timer) * 6, 0));
 
-		drawPhong(shader, cube, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj));
+		drawPhong(shader, wheezer, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj));
 		drawPhong(shader, sphere, glm::value_ptr(modelS), glm::value_ptr(view), glm::value_ptr(proj));
 	}
 
