@@ -3,6 +3,7 @@
 #include "input.h"
 #include <cstring>
 
+
 bool Input::init(const Window &window)
 {
 	//if (!window.isInitialized) return false;

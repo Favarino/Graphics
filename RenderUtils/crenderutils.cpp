@@ -3,6 +3,8 @@
 #include "GLEW\glew.h"
 #include "vertex.h"
 #include "crenderutils.h"
+#include <GLM\glm.hpp>
+#include <GLM\ext.hpp>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "OBJ\tiny_obj_loader.h"
 #include <iostream>
@@ -71,11 +73,13 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	//attributes let us tell opengl how the memory is laid out
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	//glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(2);
 
 	//index of the attribute, number of elements,type,normalized?,size of vertex, offset
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)16);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)COLOR);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)TEXCOORD);
 	//glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)32);
 	
 
@@ -226,7 +230,7 @@ void draw(const Shader & s, const Geometry & g, const float M[16], const float V
 	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
 
-void draw(const Shader & s, const Geometry & g, const Texture &t, const float M[16], const float V[16], const float P[16], float i)
+void draw(const Shader & s, const Geometry & g, const Texture &t, const float M[16], const float V[16], const float P[16])
 {
 	glUseProgram(s.handle);
 	glBindVertexArray(g.vao);
@@ -234,11 +238,11 @@ void draw(const Shader & s, const Geometry & g, const Texture &t, const float M[
 	glUniformMatrix4fv(0, 1, GL_FALSE, P);
 	glUniformMatrix4fv(1, 1, GL_FALSE, V);
 	glUniformMatrix4fv(2, 1, GL_FALSE, M);
-	glUniform1f(3, i);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, t.handle);
-	glUniform1i(4, 0);
+	int loc = glGetUniformLocation(s.handle, "texMap");
+	glUniform1i(loc, 0);
 
 	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
@@ -257,35 +261,35 @@ Geometry loadOBJ(const char * path)
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::string err;
+std::vector<tinyobj::material_t> materials;
+std::string err;
 
-	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path);
+bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path);
 
-	Vertex   *verts = new Vertex[attrib.vertices.size()/3];
-	unsigned * tris = new unsigned[shapes[0].mesh.indices.size()];
+Vertex   *verts = new Vertex[attrib.vertices.size() / 3];
+unsigned * tris = new unsigned[shapes[0].mesh.indices.size()];
 
-	for (int i = 0; i < attrib.vertices.size()/3; ++i)
-	{
-		verts[i] = { attrib.vertices[i*3],
-					 attrib.vertices[i*3+1],
-					 attrib.vertices[i*3+2], 1};
-		/*verts[i].color[0] = rand() * 1.0f / RAND_MAX;
-		verts[i].color[1] = rand() * 1.0f / RAND_MAX;
-		verts[i].color[2] = rand() * 1.0f / RAND_MAX;
-		verts[i].color[3] = 1;*/
-	}
+for (int i = 0; i < attrib.vertices.size() / 3; ++i)
+{
+	verts[i].position = { attrib.vertices[i * 3],
+				 attrib.vertices[i * 3 + 1],
+				 attrib.vertices[i * 3 + 2], 1 };
+	/*verts[i].color[0] = rand() * 1.0f / RAND_MAX;
+	verts[i].color[1] = rand() * 1.0f / RAND_MAX;
+	verts[i].color[2] = rand() * 1.0f / RAND_MAX;
+	verts[i].color[3] = 1;*/
+}
 
-	for (int i = 0; i < shapes[0].mesh.indices.size(); ++i)
-		tris[i] = shapes[0].mesh.indices[i].vertex_index;
+for (int i = 0; i < shapes[0].mesh.indices.size(); ++i)
+	tris[i] = shapes[0].mesh.indices[i].vertex_index;
 
-	Geometry retval = makeGeometry(verts, attrib.vertices.size() / 3,
-								    tris, shapes[0].mesh.indices.size());
+Geometry retval = makeGeometry(verts, attrib.vertices.size() / 3,
+	tris, shapes[0].mesh.indices.size());
 
-	delete[] verts;
-	delete[] tris;
-	// then we can call makeGeometry as per normal.
-	return retval;
+delete[] verts;
+delete[] tris;
+// then we can call makeGeometry as per normal.
+return retval;
 }
 
 Texture loadTexture(const char * path)
@@ -299,14 +303,14 @@ Texture loadTexture(const char * path)
 
 	p = stbi_load(path, &w, &h, &f, STBI_default);
 
-	if(!p) return retval;
+	if (!p) return retval;
 
 	switch (f)
 	{
-	case STBI_grey		: f = GL_RED;  break;
+	case STBI_grey: f = GL_RED;  break;
 	case STBI_grey_alpha: f = GL_RG;   break;
-	case STBI_rgb		: f = GL_RGB;  break;
-	case STBI_rgb_alpha : f = GL_RGBA; break;
+	case STBI_rgb: f = GL_RGB;  break;
+	case STBI_rgb_alpha: f = GL_RGBA; break;
 	}
 
 	retval = makeTexture(w, h, f, p);
@@ -314,8 +318,6 @@ Texture loadTexture(const char * path)
 	return retval;
 }
 #pragma endregion
-
-
 
 
 

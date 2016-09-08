@@ -9,6 +9,7 @@
 #include "input.h"
 #include "camera.h"
 #include "globjects.h"
+#include "procgen.h"
 int main()
 {
 	Window window;
@@ -25,19 +26,12 @@ int main()
 	//Texture tex = makeTexture(1, 1, 0x1907, pixels);
 
 	gallery.loadTexture("Face","../res/textures/face_tex.png");
-
-	Vertex verts[] = { {-1,-1,0,1}, {-1,1,0,1},
-					   {1,1,0,1},{1,-1,0,1} };
-
-	unsigned tris[] = { 0,1,2,2,3,0 };
-
-	gallery.makeObject("Quad", verts, 4, tris, 6);
 	
-
 	cam.jumpTo(glm::vec3(5, 5, 5));
 	cam.lookAt(glm::vec3(0, 0, 0));
 
 	gallery.loadShader("TEXTURE", "../res/shaders/textureVert.txt", "../res/shaders/textureFrag.txt");
+	gallery.loadShader("NOISE", "../res/shaders/noiseVert.txt", "../res/shaders/noiseFrag.txt");
 
 	gallery.loadObjectOBJ("Cube", "../res/models/cube.obj");
 
@@ -46,6 +40,9 @@ int main()
 	int i;
 
 	model = glm::mat4();
+
+	Geometry plane = generateGrid(64, 64);
+	Texture noise = Noise(64,42);
 
 	while (window.step())
 	{
@@ -64,11 +61,8 @@ int main()
 
 		cam.update(input, time);
 
-		draw(gallery.getShader("TEXTURE"),gallery.getObject("Quad"),gallery.getTexture("Face"),
-			glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj), i);
-
-		//draw(gallery.getShader("TEXTURE"), gallery.getObject("Cube"),tex,
-			//glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj),i);
+		draw(gallery.getShader("NOISE"), plane, noise,
+			glm::value_ptr(model), glm::value_ptr(view), glm::value_ptr(proj));
 	}
 
 	gallery.term();
