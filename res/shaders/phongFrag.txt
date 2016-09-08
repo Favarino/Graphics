@@ -6,5 +6,12 @@ in vec4 vNormal;
 
 void main()
 {
-	outColor = vNormal;
+	vec4 lightDir = normalize(vec4(-1,-1,-1,0));
+	vec4 surfaceColor = vec4(0,1,1,1);
+	vec4 lightColor = vec4(1,1,0,1);
+
+	float term = -dot(vNormal, lightDir);
+	
+	outColor = surfaceColor * term * lightColor;
+	//outColor = vNormal;
 }
