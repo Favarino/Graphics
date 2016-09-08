@@ -266,22 +266,25 @@ std::string err;
 
 bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path);
 
-Vertex   *verts = new Vertex[attrib.vertices.size() / 3];
-unsigned * tris = new unsigned[shapes[0].mesh.indices.size()];
+int vsize = shapes[0].mesh.indices.size();
 
-for (int i = 0; i < attrib.vertices.size() / 3; ++i)
+Vertex   *verts = new Vertex[vsize];
+unsigned *tris = new unsigned[vsize];
+
+for (int i = 0; i < vsize; i++)
 {
-	verts[i].position = { attrib.vertices[i * 3],
-				 attrib.vertices[i * 3 + 1],
-				 attrib.vertices[i * 3 + 2], 1 };
-	/*verts[i].color[0] = rand() * 1.0f / RAND_MAX;
-	verts[i].color[1] = rand() * 1.0f / RAND_MAX;
-	verts[i].color[2] = rand() * 1.0f / RAND_MAX;
-	verts[i].color[3] = 1;*/
-}
+	auto ind = shapes[0].mesh.indices[i];
 
-for (int i = 0; i < shapes[0].mesh.indices.size(); ++i)
-	tris[i] = shapes[0].mesh.indices[i].vertex_index;
+	const float *n = &attrib.normals[ind.normal_index * 3];
+	const float *p = &attrib.vertices[ind.vertex_index * 3];
+	const float *t = &attrib.texcoords[ind.texcoord_index * 2];
+
+	verts[i].position = glm::vec4(p[0], p[1], p[2], 1.f);
+	verts[i].normal = glm::vec4(n[0], n[1], n[2], 0.f);
+	verts[i].texcoord = glm::vec2(t[0],t[1]);
+
+	tris[i] = i;
+}
 
 Geometry retval = makeGeometry(verts, attrib.vertices.size() / 3,
 	tris, shapes[0].mesh.indices.size());
