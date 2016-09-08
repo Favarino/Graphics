@@ -58,7 +58,7 @@ bool Window::step()
 	glfwPollEvents();
 	glfwSwapBuffers(winHandle);
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	return !glfwWindowShouldClose(winHandle);
 }

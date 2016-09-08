@@ -11,9 +11,10 @@ struct Vertex
 	glm::vec4 normal;
 };
 
-enum 
+enum
 {
 	POSITION = 0,
 	COLOR = 16,
-	TEXCOORD = 32
+	TEXCOORD = 32,
+	NORM = 40
 };

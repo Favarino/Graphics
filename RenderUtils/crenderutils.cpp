@@ -74,12 +74,14 @@ Geometry makeGeometry(const Vertex * verts, size_t vsize, const unsigned int * t
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	//index of the attribute, number of elements,type,normalized?,size of vertex, offset
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)COLOR);
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)TEXCOORD);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)NORM);
 	//glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)32);
 	
 
@@ -246,6 +248,22 @@ void draw(const Shader & s, const Geometry & g, const Texture &t, const float M[
 
 	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
 }
+
+void drawPhong(const Shader & s, const Geometry & g, const float M[16], const float V[16], const float P[16])
+{
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	glUseProgram(s.handle);
+	glBindVertexArray(g.vao);
+
+	glUniformMatrix4fv(0, 1, GL_FALSE, P);
+	glUniformMatrix4fv(1, 1, GL_FALSE, V);
+	glUniformMatrix4fv(2, 1, GL_FALSE, M);
+
+
+	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
+}
 #pragma endregion
 
 #pragma region LoadFunctions
@@ -286,8 +304,8 @@ for (int i = 0; i < vsize; i++)
 	tris[i] = i;
 }
 
-Geometry retval = makeGeometry(verts, attrib.vertices.size() / 3,
-	tris, shapes[0].mesh.indices.size());
+Geometry retval = makeGeometry(verts, vsize,
+	tris, vsize);
 
 delete[] verts;
 delete[] tris;
