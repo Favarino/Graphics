@@ -1,6 +1,7 @@
 #version 450
 
 layout(location = 0) in vec4 position;
+layout(location = 2) in vec2 texcoord;
 layout(location = 3) in vec4 normal;
 
 layout(location = 0)uniform mat4 proj;
@@ -9,10 +10,12 @@ layout(location = 2)uniform mat4 model;
 
 out vec4 vNormal;
 out vec4 vPos;
+out vec2 UV;
 
 void main()
 {
 	vNormal = model * normal;
 	vPos = model * position;
+	UV = texcoord;
 	gl_Position = proj*view*model*position;
 }
