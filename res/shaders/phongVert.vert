@@ -8,14 +8,14 @@ layout(location = 0)uniform mat4 proj;
 layout(location = 1)uniform mat4 view;
 layout(location = 2)uniform mat4 model;
 
-out vec4 vNormal;
-out vec4 vPos;
+out vec3 vNormal;
+out vec3 vPos;
 out vec2 UV;
 
 void main()
 {
-	vNormal = model * normal;
-	vPos = model * position;
+	vNormal = normalize(model * normal).xyz;
+	vPos    = (model*position).xyz;
 	UV = texcoord;
 	gl_Position = proj*view*model*position;
 }

@@ -37,8 +37,8 @@ int main()
 
 	Geometry soulspear = loadOBJ("../res/models/soulspear.obj");
 
-	Shader shader = loadShader("../res/shaders/phongVert.txt", 
-							   "../res/shaders/phongFrag.txt");
+	Shader shader = loadShader("../res/shaders/phongVert.vert", 
+							   "../res/shaders/phongFrag.frag");
 
 	Texture tarray[] = { loadTexture("../res/textures/soulspear_diffuse.tga"),
 		loadTexture("../res/textures/soulspear_specular.tga"),
