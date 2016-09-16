@@ -128,7 +128,7 @@ Shader makeShader(const char * vsource, const char * fsource)
 	// link the shaders into a single program
 	glAttachShader(retval.handle, vs);
 	glAttachShader(retval.handle, fs);
-	glLinkProgram(retval.handle);
+	glog_glLinkProgram(retval.handle);
 
 	GLint program_linked;
 	glGetProgramiv(retval.handle, GL_LINK_STATUS, &program_linked);
@@ -371,7 +371,7 @@ Texture loadTexture(const char * path)
 #pragma endregion
 Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
 {
-	Framebuffer retval = { 0,width,height,0,0,0,0,0,0,0,0 };
+	Framebuffer retval = { 0,width,height,nColors};
 
 	glGenFramebuffers(1, &retval.handle);
 	glBindFramebuffer(GL_FRAMEBUFFER, retval.handle);
@@ -391,6 +391,47 @@ Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return retval;
 }
+void clearFramebuffer(const Framebuffer &f)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, f.handle);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void freeFramebuffer(Framebuffer &fb)
+{
+	for (unsigned i = 0; i < fb.nColors; ++i)
+		freeTexture(fb.colors[i]);
+
+	glDeleteFramebuffers(1, &fb.handle);
+	fb = { 0,0,0,0 };
+}
+
+void drawFB(const Shader &s, const Geometry &g, const Framebuffer &f,
+	const float M[16], const float V[16], const float P[16],
+	const Texture *T, unsigned t_count)
+{
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, f.handle);
+	glUseProgram(s.handle);
+	glBindVertexArray(g.vao);
+
+	glViewport(0, 0, f.width, f.height);
+
+	glUniformMatrix4fv(0, 1, GL_FALSE, P);
+	glUniformMatrix4fv(1, 1, GL_FALSE, V);
+	glUniformMatrix4fv(2, 1, GL_FALSE, M);
+
+	for (int i = 0; i < t_count; ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, T[i].handle);
+		glUniform1i(3 + i, 0 + i);
+	}
+
+
+	glDrawElements(GL_TRIANGLES, g.size, GL_UNSIGNED_INT, 0);
+}
 
 

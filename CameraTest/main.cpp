@@ -47,11 +47,15 @@ int main()
 	cam.jumpTo(glm::vec3(0, 0, -10));
 	cam.lookAt(glm::vec3(0, 0, 0));
 
+	Framebuffer frame = makeFramebuffer(1280, 720, 3);
+	Framebuffer screen = { 0,1280,720,1 };
+
 	float timer = 0;
 	while (window.step())
 	{
 		timer += 0.016f;
 		
+		clearFramebuffer(frame);
 		input.step();
 		time.step();
 		cam.update(input, time);
@@ -62,10 +66,15 @@ int main()
 		glm::mat4 modelC = glm::rotate(timer, glm::normalize(glm::vec3(0, 1, 0)));
 		glm::mat4 modelS = glm::translate(glm::vec3(0, cos(timer) * 6, 0));
 
-		drawPhong(shader, soulspear, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
-		drawPhong(shader, sphere, glm::value_ptr(modelS), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
-	}
+		drawFB(shader, soulspear, frame, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj, tarray, 3);
 
+		//drawPhong(shader, soulspear, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
+		//drawPhong(shader, sphere, glm::value_ptr(modelS), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
+	}
+	freeFramebuffer(frame);
+	freeShader(shader);
+	freeGeometry(soulspear);
+	for each (auto &t in tarray) freeTexture(t);
 	gallery.term();
 	time.term();
 	input.term();
