@@ -2,23 +2,26 @@
 #include "crenderutils.h"
 #include "vertex.h"
 #include "Gallery.h"
+#include "gldraw.h"
 int main()
 {
 	Window window;
-	window.init();
+	window.init(1280,720);
 
-	Gallery gallery;
-	gallery.init();
+	
 
-	float time = 0;
+	Framebuffer screen {0, 1280, 720 };
+
+	Geometry quad = makeGeometry(quad_verts, 4, quad_tris, 6);
+
+	Shader simple = loadShader("../res/shaders/simpleVert.txt","../res/shaders/simpleFrag.txt");
 
 	while (window.step())
 	{
-		time += 0.016667f;
-		draw(gallery.getShader("Test"), gallery.getObject("Cube"),time);		
+		tdraw(simple, quad, screen);
 	}
 
-	gallery.term();
+
 	window.term();
 
 	return 0;
