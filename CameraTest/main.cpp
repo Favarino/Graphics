@@ -40,6 +40,8 @@ int main()
 	Shader shader = loadShader("../res/shaders/phongVert.vert", 
 							   "../res/shaders/phongFrag.frag");
 
+
+
 	Texture tarray[] = { loadTexture("../res/textures/soulspear_diffuse.tga"),
 		loadTexture("../res/textures/soulspear_specular.tga"),
 		loadTexture("../res/textures/soulspear_normal.tga") };
@@ -50,12 +52,16 @@ int main()
 	Framebuffer frame = makeFramebuffer(1280, 720, 3);
 	Framebuffer screen = { 0,1280,720,1 };
 
+	Shader post = loadShader("../res/shaders/postVert.txt",
+		"../res/shaders/postFrag.txt");
+
 	float timer = 0;
 	while (window.step())
 	{
-		timer += 0.016f;
-		
 		clearFramebuffer(frame);
+
+		timer += 0.016f;
+
 		input.step();
 		time.step();
 		cam.update(input, time);
@@ -66,10 +72,10 @@ int main()
 		glm::mat4 modelC = glm::rotate(timer, glm::normalize(glm::vec3(0, 1, 0)));
 		glm::mat4 modelS = glm::translate(glm::vec3(0, cos(timer) * 6, 0));
 
-		drawFB(shader, soulspear, frame, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj, tarray, 3);
+		drawFB(post, soulspear, screen, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj), tarray, 3);
 
 		//drawPhong(shader, soulspear, glm::value_ptr(modelC), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
-		//drawPhong(shader, sphere, glm::value_ptr(modelS), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
+		drawPhong(shader, sphere, glm::value_ptr(modelS), glm::value_ptr(view), glm::value_ptr(proj),tarray,1);
 	}
 	freeFramebuffer(frame);
 	freeShader(shader);

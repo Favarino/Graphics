@@ -123,8 +123,8 @@ Shader makeShader(const char * vsource, const char * fsource)
 	glShaderSource(vs, 1, &vsource, 0);
 	glShaderSource(fs, 1, &fsource, 0);
 	// compile the shaders
-	glog_glCompileShader(vs);
-	glog_glCompileShader(fs);
+	glCompileShader(vs);
+	glCompileShader(fs);
 	// link the shaders into a single program
 	glAttachShader(retval.handle, vs);
 	glAttachShader(retval.handle, fs);
@@ -375,6 +375,9 @@ Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
 
 	glGenFramebuffers(1, &retval.handle);
 	glBindFramebuffer(GL_FRAMEBUFFER, retval.handle);
+
+	retval.depth = makeTexture(width, height, GL_DEPTH_COMPONENT, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, retval.depth.handle, 0);
 
 	const GLenum attachments[8] =
 	{ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
