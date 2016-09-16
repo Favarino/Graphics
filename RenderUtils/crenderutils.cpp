@@ -13,6 +13,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <STB\stb_image.h>
 #include <random>
+#include "gldecs.h"
 using namespace std;
 #pragma endregion
 
@@ -122,8 +123,8 @@ Shader makeShader(const char * vsource, const char * fsource)
 	glShaderSource(vs, 1, &vsource, 0);
 	glShaderSource(fs, 1, &fsource, 0);
 	// compile the shaders
-	glCompileShader(vs);
-	glCompileShader(fs);
+	glog_glCompileShader(vs);
+	glog_glCompileShader(fs);
 	// link the shaders into a single program
 	glAttachShader(retval.handle, vs);
 	glAttachShader(retval.handle, fs);
@@ -343,6 +344,7 @@ return retval;
 
 Texture loadTexture(const char * path)
 {
+	glog("loading Texture", "path");
 	int w, h, f;
 	unsigned char *p;
 
@@ -367,6 +369,28 @@ Texture loadTexture(const char * path)
 	return retval;
 }
 #pragma endregion
+Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
+{
+	Framebuffer retval = { 0,width,height,0,0,0,0,0,0,0,0 };
+
+	glGenFramebuffers(1, &retval.handle);
+	glBindFramebuffer(GL_FRAMEBUFFER, retval.handle);
+
+	const GLenum attachments[8] =
+	{ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+		GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5,
+		GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
+
+	for (int i = 0; i < nColors && i < 8; ++i)
+	{
+		retval.colors[i] = makeTexture(width, height, GL_RGBA, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, attachments[i],
+			retval.colors[i].handle, 0);
+	}
+	glDrawBuffers(nColors, attachments);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return retval;
+}
 
 
 

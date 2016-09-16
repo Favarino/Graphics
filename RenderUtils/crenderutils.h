@@ -32,3 +32,7 @@ void draw(const Shader &s, const Geometry &g, const Texture &, const float M[16]
 void drawPhong(const Shader & s, const Geometry & g, const float M[16], const float V[16], const float P[16]);
 
 void drawPhong(const Shader & s, const Geometry & g, const float M[16], const float V[16], const float P[16], const Texture *T, unsigned t_count);
+
+Framebuffer makeFramebuffer(unsigned width, unsigned height,unsigned nColors);
+
+void freeFramebuffer(Framebuffer &);

@@ -20,3 +20,10 @@ struct Texture
 	unsigned handle;
 	int width, height, format;
 };
+
+struct Framebuffer
+{
+	unsigned handle;
+	unsigned width, height;
+	Texture colors[8];
+};

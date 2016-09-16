@@ -138,6 +138,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="crenderutils.h" />
     <ClInclude Include="Gallery.h" />
+    <ClInclude Include="gldecs.h" />
     <ClInclude Include="globjects.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="procgen.h" />
