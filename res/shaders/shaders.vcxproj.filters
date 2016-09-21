@@ -19,5 +19,7 @@
     <None Include="simpleVert.vert" />
     <None Include="post.frag" />
     <None Include="post.vert" />
+    <None Include="gpass.vert" />
+    <None Include="gpass.frag" />
   </ItemGroup>
 </Project>
