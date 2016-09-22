@@ -21,5 +21,9 @@
     <None Include="post.vert" />
     <None Include="gpass.vert" />
     <None Include="gpass.frag" />
+    <None Include="quad.frag" />
+    <None Include="quad.vert" />
+    <None Include="lpass.vert" />
+    <None Include="lpass.frag" />
   </ItemGroup>
 </Project>

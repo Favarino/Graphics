@@ -112,8 +112,12 @@
   <ItemGroup>
     <None Include="gpass.frag" />
     <None Include="gpass.vert" />
+    <None Include="lpass.frag" />
+    <None Include="lpass.vert" />
     <None Include="post.frag" />
     <None Include="post.vert" />
+    <None Include="quad.frag" />
+    <None Include="quad.vert" />
     <None Include="simpleFrag.frag" />
     <None Include="simpleVert.vert" />
   </ItemGroup>
