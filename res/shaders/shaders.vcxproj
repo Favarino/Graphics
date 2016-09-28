@@ -120,6 +120,8 @@
     <None Include="quad.vert" />
     <None Include="simpleFrag.frag" />
     <None Include="simpleVert.vert" />
+    <None Include="toon.frag" />
+    <None Include="toon.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

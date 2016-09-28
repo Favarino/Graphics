@@ -25,5 +25,7 @@
     <None Include="quad.vert" />
     <None Include="lpass.vert" />
     <None Include="lpass.frag" />
+    <None Include="toon.vert" />
+    <None Include="toon.frag" />
   </ItemGroup>
 </Project>

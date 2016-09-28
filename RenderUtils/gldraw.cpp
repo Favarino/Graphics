@@ -11,6 +11,24 @@ void clearFramebuffer(const Framebuffer & r)
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+void useShaderFlags(const Shader &s)
+{
+	if (s.depthTest)
+		glEnable(GL_DEPTH_TEST);
+	else glDisable(GL_DEPTH_TEST);
+
+	if (s.faceCulling)
+		glEnable(GL_CULL_FACE);
+	else glDisable(GL_CULL_FACE);
+
+	if (s.additiveBlend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+	}
+	else glDisable(GL_BLEND);
+
+}
 
 void tdraw_internal::tdraw_begin(const Shader & s, const Geometry & g, const Framebuffer & r)
 {
@@ -18,11 +36,9 @@ void tdraw_internal::tdraw_begin(const Shader & s, const Geometry & g, const Fra
 	glUseProgram(s.handle);
 	glBindVertexArray(g.vao);
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
+	useShaderFlags(s);
 	glViewport(0, 0, r.width, r.height);
-}void clearFramebuffer(const Framebuffer &r);
-
+}
 
 
 void tdraw_internal::tdraw_close(const Shader & s, const Geometry & g, const Framebuffer & r)
@@ -43,6 +59,12 @@ size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::mat4 & va
 size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::vec3 & val)
 {
 	glUniform3fv(idx, 1, glm::value_ptr(val));
+	return 0;
+}
+
+size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::vec4 & val)
+{
+	glUniform4fv(idx, 1, glm::value_ptr(val));
 	return 0;
 }
 

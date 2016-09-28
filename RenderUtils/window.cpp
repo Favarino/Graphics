@@ -11,10 +11,10 @@
 #ifdef _DEBUG
 void APIENTRY GL_errorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,const GLchar *message, const void *userParam)
 {
-	fprintf(stderr, "%s\n", message);
 
 	if (severity == GL_DEBUG_SEVERITY_HIGH)
 	{
+		fprintf(stderr, "%s\n", message);
 		system("PAUSE");
 	}
 }
@@ -33,7 +33,7 @@ bool Window::init(int a_width, int a_height, char * a_title)
 	isInitialized = true;
 	glewExperimental = true;
 	glewInit();
-	glClearColor(0.9f, 0.f, .7f, 0.f);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
 
 	
 #ifdef _DEBUG

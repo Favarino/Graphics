@@ -52,11 +52,9 @@ void freeGeometry(Geometry &geo)
 }
 
 
-Shader makeShader(const char * vsource, const char * fsource)
+Shader makeShader(const char * vsource, const char * fsource, bool depth, bool add, bool face)
 {
-	glog("TODO", "Find a way to implement state management.");
-
-	Shader retval;
+	Shader retval = { 0,depth,add,face };
 	// create our variables
 	retval.handle = glCreateProgram();
 	unsigned vs = glCreateShader(GL_VERTEX_SHADER);
@@ -87,19 +85,28 @@ void freeShader(Shader &shader)
 }
 
 
-Texture makeTexture(unsigned width, unsigned height, unsigned format, const unsigned char *pixels)
+Texture makeTexture(unsigned width, unsigned height, unsigned channels, 
+					const unsigned char *pixels, bool isFloat)
 {
-	glog("TODO", "Add parameter for channel count.");
-	glog("TODO", "Parameter for bit-depth?");
-	glog("TODO", "Parameter for the type?");
+	GLenum eformat = GL_RGBA; //number of channels goes
+	GLenum iformat = isFloat ? GL_RGBA32F : eformat; // number of channels and the type
+	switch (channels)
+	{
+	case 0: eformat = GL_DEPTH_COMPONENT; iformat = GL_DEPTH24_STENCIL8;  break;
+	case 1: eformat = GL_RED;  iformat = isFloat ? GL_R32F : eformat; break;
+	case 2: eformat = GL_RG;   iformat = isFloat ? GL_RG32F : eformat;  break;
+	case 3: eformat = GL_RGB;  iformat = isFloat ? GL_RGB32F : eformat; break;
+	case 4: eformat = GL_RGBA; iformat = isFloat ? GL_RGBA32F : eformat;  break;
+	default:glog("ERROR", "Channels must be 0-4");
+	}
 
-	Texture retval = { 0, width, height, format };
+	Texture retval = { 0, width, height, channels };
 
 	glGenTextures(1, &retval.handle);				// Declaration
 	glBindTexture(GL_TEXTURE_2D, retval.handle);    // Scoping
 
 													// GL_RED, GL_RG, GL_RGB, GL_RGBA
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, iformat, width, height, 0, eformat, isFloat? GL_FLOAT:GL_UNSIGNED_BYTE, pixels);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -148,7 +155,7 @@ Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
 	glGenFramebuffers(1, &retval.handle);
 	glBindFramebuffer(GL_FRAMEBUFFER, retval.handle);
 	////////////////////////////////////////////////////////////////////////////////////
-	retval.depth = makeTexture(width, height, GL_DEPTH_COMPONENT, 0);
+	retval.depth = makeTexture(width, height, 0, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, retval.depth.handle, 0);
 	////////////////////////////////////////////////////////////////////////////////////
 	const GLenum attachments[8] =
@@ -158,7 +165,7 @@ Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors)
 
 	for (int i = 0; i < nColors && i < 8; ++i)
 	{
-		retval.colors[i] = makeTexture(width, height, GL_RGBA, 0);
+		retval.colors[i] = makeTexture(width, height, 4, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, attachments[i],
 			retval.colors[i].handle, 0);
 	}

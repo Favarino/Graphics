@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 
 struct Geometry makeGeometry(const struct Vertex *verts, size_t vsize,
@@ -7,17 +6,16 @@ struct Geometry makeGeometry(const struct Vertex *verts, size_t vsize,
 
 void freeGeometry(Geometry &);
 
-struct Shader makeShader(const char *vsource, const char *fsource);
+struct Shader makeShader(const char *vsource, const char *fsource,
+	bool depth = true, bool add = false, bool face = true);
 
 void freeShader(Shader &);
 
-struct Texture makeTexture(unsigned width, unsigned height, unsigned format,
-	const unsigned char *pixels);
 
-struct Texture makeTextureF(unsigned square, const float *pixels);
+struct Texture makeTexture(unsigned width, unsigned height, unsigned channels,
+	const unsigned char *pixels, bool isFloat = false);
 
 void freeTexture(Texture &);
 
 struct Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors);
-
 void freeFramebuffer(Framebuffer &);
