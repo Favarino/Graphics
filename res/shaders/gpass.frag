@@ -14,6 +14,7 @@ layout(location = 0) out vec4 albedo;
 layout(location = 1) out vec4 normal;
 layout(location = 2) out vec4 specular;
 layout(location = 3) out vec4 position;
+//layout(location = 4) out vec4 isToonLit;
 
 void main()
 {

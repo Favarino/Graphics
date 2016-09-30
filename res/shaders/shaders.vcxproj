@@ -114,12 +114,20 @@
     <None Include="gpass.vert" />
     <None Include="lpass.frag" />
     <None Include="lpass.vert" />
+    <None Include="lspass.frag" />
+    <None Include="lspass.vert" />
+    <None Include="phys.frag" />
+    <None Include="phys.vert" />
     <None Include="post.frag" />
     <None Include="post.vert" />
     <None Include="quad.frag" />
     <None Include="quad.vert" />
     <None Include="simpleFrag.frag" />
     <None Include="simpleVert.vert" />
+    <None Include="spass.frag" />
+    <None Include="spass.vert" />
+    <None Include="cel.frag" />
+    <None Include="cel.vert" />
     <None Include="toon.frag" />
     <None Include="toon.vert" />
   </ItemGroup>

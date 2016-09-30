@@ -9,6 +9,7 @@ layout(location = 4) uniform sampler2D specularMap;
 layout(location = 5) uniform sampler2D positionMap;
 layout(location = 6) uniform sampler2D depthMap;
 
+
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec4 outAlbedo;
 layout(location = 2) out vec4 outSpecular;
@@ -32,11 +33,10 @@ void main()
 	float sP = 2;
 
 	float lamb = max(0,-dot(L, N));
-	float spec = max(0,-dot(E, R));
-	if(spec > 0)
-			spec = pow(spec, sP);
+
+	//vec4 lambWarp = (texture(diffuseWarp, vec2(lamb,0));
 
 	outAlbedo   = texture(albedoMap,   vUV) * lamb * lCol;
-	outSpecular = texture(specularMap, vUV) * spec * lCol;
-	outColor = outAlbedo + outSpecular;
+	outSpecular = texture(specularMap, vUV) * spec * lCol;	
+	outColor = outAlbedo;
 }

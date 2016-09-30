@@ -14,7 +14,7 @@ struct Vertex
 	{
 		POSITION = 0,
 		COLOR = 16,
-		NORM = 32,
+		NORMAL = 32,
 		TEXCOORD = 48
 
 	};
