@@ -28,6 +28,7 @@ void main()
 	Shader gpass = loadShader("../res/shaders/gpass.vert", "../res/shaders/gpass.frag");
 	Shader lpass = loadShader("../res/shaders/lpass.vert", "../res/shaders/lpass.frag", false, true);
 	Shader toon = loadShader("../res/shaders/toon.vert", "../res/shaders/toon.frag");
+	Shader phys = loadShader("../res/shaders/phys.vert","../res/shaders/phys.frag");
 
 	/////////////////////////////////////////
 	//////// Shadowy Shading Shaders
@@ -37,8 +38,8 @@ void main()
 
 	Framebuffer screen = { 0, 1280, 720 };
 
-	bool flTex[] = { false, true, false, true };
-	Framebuffer gframe = makeFramebuffer(1280, 720, 4, flTex);
+	bool flTex[] = { false, true, false, true, false };
+	Framebuffer gframe = makeFramebuffer(1280, 720, 5, flTex);
 	Framebuffer lframe = makeFramebuffer(1280, 720, 3);
 	Framebuffer nframe = makeFramebuffer(1280, 720, 1); // for blurring.
 
@@ -51,7 +52,7 @@ void main()
 
 	// Model Matrices
 	glm::mat4 spearModel; // ROTATES in main
-	glm::mat4 sphereModel = glm::translate(glm::vec3(0.3f, -1, -0.2f));
+	glm::mat4 sphereModel = glm::translate(glm::vec3(0.0f, -1, -0.2f));
 	glm::mat4 wallModel = glm::rotate(45.f, glm::vec3(0, -1, 0)) * glm::translate(glm::vec3(0, 0, -2)) * glm::scale(glm::vec3(2, 2, 1));
 
 	// Light Matrices and data
@@ -73,19 +74,24 @@ void main()
 		time += 0.016f;
 		spearModel = glm::rotate(time, glm::vec3(0, 1, 0)) * glm::translate(glm::vec3(0, -1, 0));
 
-
+		//glm::mat4 camProj = glm::perspective(50.f, 1280.f / 720, 1.f, 100.f);
+		//spearModel = glm::translate(glm::vec3(0, -1, 0));
 		/////////////////////////////////////////////////////
 		// Geometry Pass
 		//
 		clearFramebuffer(gframe);
-		tdraw(gpass, spear, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular);
-		tdraw(gpass, sphere, gframe, sphereModel, camView, camProj, white, vertex_normals, white);
-		tdraw(gpass, quad, gframe, wallModel, camView, camProj, white, vertex_normals, white);
+		tdraw(gpass, spear, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal);
+
+		clearFramebuffer(lframe);
+		//tdraw(phys,quad,lframe,)
+		tdraw(gpass, sphere, gframe, sphereModel, camView, camProj, white, vertex_normals, white, vertex_normals);
+		tdraw(gpass, quad, gframe, wallModel, camView, camProj, white, vertex_normals, white, vertex_normals);
 
 		//tdraw(blur, quad, nframe, gframe.colors[1]);
 
 		/////////////////////////////////////////////////////
 		//// Light pass!
+		/**/
 		clearFramebuffer(lframe);
 
 		//////////////////////////
@@ -97,10 +103,11 @@ void main()
 		tdraw(spass, sphere, sframe, sphereModel, redView, lightProj);
 		tdraw(spass, quad, sframe, wallModel, redView, lightProj);
 		// Light Aggregation
-		tdraw(lspass, quad, lframe, camView,
+		tdraw(lspass, quad, screen, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
+			gframe.colors[4], // roughness
 			sframe.depth, redColor, redView, lightProj);
-
+		/*
 		//////////////////////////
 		// Green light!
 
@@ -135,6 +142,7 @@ void main()
 			glm::translate(glm::vec3(-.5f, -0.5f, 0)) *
 			glm::scale(glm::vec3(0.5f, 0.5f, 1.f));
 		tdraw(qdraw, quad, screen, lframe.colors[0], mod);
+		*/
 
 	}
 

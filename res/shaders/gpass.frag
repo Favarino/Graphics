@@ -7,6 +7,7 @@ in vec2 vUV;
 layout(location = 3) uniform sampler2D diffuseMap;
 layout(location = 4) uniform sampler2D normalMap;
 layout(location = 5) uniform sampler2D specularMap;
+layout(location = 6) uniform sampler2D roughnessMap;
 
 mat3 cotangent_frame(in vec3 N, in vec3 p, in vec2 uv);
 
@@ -14,6 +15,7 @@ layout(location = 0) out vec4 albedo;
 layout(location = 1) out vec4 normal;
 layout(location = 2) out vec4 specular;
 layout(location = 3) out vec4 position;
+layout(location = 4) out vec4 out_rough;
 //layout(location = 4) out vec4 isToonLit;
 
 void main()
@@ -25,6 +27,7 @@ void main()
 	normal   = vec4(N,0);
 	specular = texture(specularMap, vUV);
 	position = vec4(vPosition,1);
+	out_rough = texture(roughnessMap, vUV);
 }
 
 
