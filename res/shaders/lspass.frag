@@ -35,6 +35,7 @@ uniform mat4 clipToUV = mat4(0.5f, 0.0f, 0.0f, 0.0f,
 							 0.5f, 0.5f, 0.5f, 1.0f);
 
 float OrenNayar(in float roughness, in vec3 L, in vec3 N, in vec3 E);
+float CookTorrance(in float roughness, in vec3 L, in vec3 N, in vec3 E, in float reflectionCoefficient);
 
 void main()
 {		 
@@ -44,6 +45,8 @@ void main()
 	vec4 P = texture(positionMap,vUV);			     // texel position
 	vec3 R = reflect(L, N);							 // light/surface reflection
 	vec3 E = normalize(view[3].xyz + P.xyz);		 // eye direction
+	float EdN = 1.0 - max(dot(E,N),0.0);			 // rim-shading contribution
+	vec3 rimLighting = vec3(smoothstep(0.3,1.0,EdN));
 
 	float roughness = texture(roughnessMap, vUV).r;
 
@@ -67,6 +70,7 @@ void main()
 	float sP = 2;
 
 	float lamb = OrenNayar(roughness,-L, N, E); // max(0,-dot(L, N));
+	float spec = CookTorrance(roughness,-L,N,E,1);
 
 	if (vUV.y < .5f) lamb = max(0,-dot(L, N));
 
@@ -75,21 +79,20 @@ void main()
 	//else if(lamb > .1) lamb = .25;
 
 
-	float spec = max(0,-dot(E, R));
-	if(spec > 0)
-			spec = pow(spec, sP);
+	//float spec = max(0,-dot(E, R));
+	//if(spec > 0)
+	//		spec = pow(spec, sP);
 
 
-	if(spec > .95) spec = 1;
-	else if(spec > .5) spec = .75;
-	else if(spec > .25) spec = .5;
-	else if(spec > 0) spec = .25;
+	//if(spec > .95) spec = 1;
+	//else if(spec > .5) spec = .75;
+	//else if(spec > .25) spec = .5;
+	//else if(spec > 0) spec = .25;
 
 	outAlbedo   = texture(albedoMap,   vUV) * lamb * lCol;
 	outSpecular = texture(specularMap, vUV) * spec * lCol;
-	outColor    =  outAlbedo + outSpecular;
-
-	outColor = vec4(lamb,lamb,lamb,lamb);
+	outColor    =  outAlbedo + outSpecular + (1 - vec4(rimLighting,0))*lCol;
+	//outColor.rgb = rimLighting;
 }
 
 
@@ -113,4 +116,27 @@ float DX = alpha * beta;
 
 float OrenNayar = NdL * (A+B*CX*DX);
 return OrenNayar;
+}
+float CookTorrance(in float roughness, in vec3 L, in vec3 N, in vec3 E, in float reflectionCoefficient)
+{
+vec3 H = normalize(L+E); // light and view half vector
+float R2 = roughness * roughness;
+float NdH = max(dot(N,H),0.0f);
+float NdH2 = NdH*NdH;
+float NdL = max(0.0f,dot(N,L));
+float NdE = max(0.0f,dot(N,E));
+float e = 2.7182818284;
+float pi = 3.141592653;
+
+//beckmans distribution function D
+float exponent = -(1 - NdH2) / (NdH2 * R2);
+float D = pow(e,exponent)/(R2 * NdH2 * NdH2);
+//frensel term F
+float F = reflectionCoefficient + (1 - reflectionCoefficient) * pow(1-NdE,5);
+//geometric attenuation factor G
+float X = 2.0f * NdH / dot(E,H);
+float G = min(1,min(X*NdE,X*NdL));
+//calculate cook-torrance
+float CookTorrance = max((D*G*F)/(NdE*pi),0.0f);
+return CookTorrance;
 }

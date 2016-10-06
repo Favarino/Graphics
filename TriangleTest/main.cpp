@@ -42,9 +42,10 @@ void main()
 	Framebuffer gframe = makeFramebuffer(1280, 720, 5, flTex);
 	Framebuffer lframe = makeFramebuffer(1280, 720, 3);
 	Framebuffer nframe = makeFramebuffer(1280, 720, 1); // for blurring.
+	Framebuffer pframe = makeFramebuffer(1280, 720, 0); // post-proccessing
 
 														
-	Framebuffer sframe = makeFramebuffer(256, 256, 0); //change shadow resolution here
+	Framebuffer sframe = makeFramebuffer(1280, 720, 0); //change shadow resolution here
 
 	// Camera information
 	glm::mat4 camView = glm::lookAt(glm::vec3(0, 0, 4), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));

@@ -51,5 +51,11 @@
     <None Include="toon.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="SSAO.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="SSAO.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

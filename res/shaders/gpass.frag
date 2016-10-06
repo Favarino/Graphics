@@ -17,7 +17,13 @@ layout(location = 2) out vec4 specular;
 layout(location = 3) out vec4 position;
 layout(location = 4) out vec4 out_rough;
 //layout(location = 4) out vec4 isToonLit;
-
+const float NEAR = 0.1; // projection matrix's near plane
+const float FAR = 50.0f; // projection matrix's far plane
+//float LinearizeDepth(float depth)
+//{
+//    float z = depth * 2.0 - 1.0; // Back to NDC 
+//    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));	
+//}
 void main()
 {
 	mat3 TBN = cotangent_frame(vNormal, vPosition, vUV);
@@ -28,6 +34,9 @@ void main()
 	specular = texture(specularMap, vUV);
 	position = vec4(vPosition,1);
 	out_rough = texture(roughnessMap, vUV);
+	//position.a = LinearizeDepth(gl_FragCoord.z);
+
+	
 }
 
 
