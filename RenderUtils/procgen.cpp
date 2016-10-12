@@ -6,6 +6,7 @@
 #include <GLM\glm.hpp>
 #include <GLM\ext.hpp>
 
+
 Geometry generateGrid(unsigned int rows, unsigned int cols)
 {
 	Vertex* aoVertices = new Vertex[rows * cols];
@@ -20,6 +21,8 @@ Geometry generateGrid(unsigned int rows, unsigned int cols)
 			glm::vec3 color = glm::vec3(sinf(c / (float)(cols - 1))*(r / (float)(rows - 1)));
 
 			aoVertices[r * cols + c].color = glm::vec4(color, 1);
+
+			aoVertices[r*cols + c].normal = glm::vec4(0, 1, 0, 0);
 		}
 	}
 	unsigned int* auiIndices = new unsigned int[(rows - 1) * (cols - 1) * 6];

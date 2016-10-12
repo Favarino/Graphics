@@ -1,5 +1,5 @@
 #include "crenderutils.h"
-
+#include "procgen.h"
 
 #include "GLM\ext.hpp"
 
@@ -12,11 +12,13 @@ void main()
 	Geometry spear = loadOBJ("../res/models/soulspear.obj");
 	Geometry sphere = loadOBJ("../res/models/sphere.obj");
 	Geometry wheezer = loadOBJ("../res/models/mrwheezer.obj");
+	Geometry plane = generateGrid(64, 64);
 
 	Texture spear_normal = loadTexture("../res/textures/soulspear_normal.tga");
 	Texture spear_diffuse = loadTexture("../res/textures/soulspear_diffuse.tga");
 	Texture spear_specular = loadTexture("../res/textures/soulspear_specular.tga");
 	Texture noise_tex = loadTexture("../res/textures/perlin_noise.jpg");
+	Texture gen_noise = Noise(64, 42);
 
 	const unsigned char norm_pixels[4] = { 127, 127, 255, 255 };
 	Texture vertex_normals = makeTexture(1, 1, 4, norm_pixels);
@@ -31,6 +33,7 @@ void main()
 	Shader lpass = loadShader("../res/shaders/lpass.vert", "../res/shaders/lpass.frag", false, true);
 	Shader toon = loadShader("../res/shaders/toon.vert", "../res/shaders/toon.frag");
 	Shader SSAO = loadShader("../res/shaders/SSAO.vert","../res/shaders/SSAO.frag");
+	Shader noise = loadShader("../res/shaders/noise.vert", "../res/shaders/noise.frag",true,false,false);
 
 	/////////////////////////////////////////
 	//////// Shadowy Shading Shaders
@@ -59,6 +62,9 @@ void main()
 	glm::mat4 sphereModel = glm::translate(glm::vec3(0.0f, -1, -0.2f));
 	glm::mat4 wallModel = glm::rotate(45.f, glm::vec3(0, -1, 0)) * glm::translate(glm::vec3(0, 0, -2)) * glm::scale(glm::vec3(2, 2, 1));
 
+
+	glm::mat4 planeModel = glm::rotate(45.f, glm::vec3(-1, 0, 0)) * glm::rotate(0.f, glm::vec3(0, -1, 0)) * glm::translate(glm::vec3(-4, 0, -3)) * glm::scale(glm::vec3(4/64.f,1 , 4 / 64.f));
+
 	// Light Matrices and data
 	glm::mat4 lightProj = glm::ortho<float>(-10, 10, -10, 10, -10, 10);
 
@@ -73,6 +79,8 @@ void main()
 
 	float time = 0;
 
+	
+
 	while (context.step())
 	{
 		time += 0.016f;
@@ -85,8 +93,8 @@ void main()
 		//
 		clearFramebuffer(gframe);
 		tdraw(gpass, wheezer, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal);
-
-		clearFramebuffer(lframe);
+		//tdraw(noise, plane, gframe, camProj, camView, wallModel, gen_noise);
+		tdraw(noise, plane, gframe, camProj, camView, /*wallModel*/ planeModel, gen_noise);
 		//tdraw(phys,quad,lframe,)
 		tdraw(gpass, sphere, gframe, sphereModel, camView, camProj, white, vertex_normals, white, vertex_normals);
 		tdraw(gpass, quad, gframe, wallModel, camView, camProj, white, vertex_normals, white, vertex_normals);
@@ -105,7 +113,7 @@ void main()
 		clearFramebuffer(sframe);
 		tdraw(spass, wheezer, sframe, spearModel, redView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, redView, lightProj);
-		tdraw(spass, quad, sframe, wallModel, redView, lightProj);
+		tdraw(spass, plane, sframe, wallModel, redView, lightProj);
 		// Light Aggregation
 		tdraw(lspass, quad, screen, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
@@ -115,7 +123,7 @@ void main()
 		clearFramebuffer(sframe);
 		tdraw(spass, wheezer, sframe, spearModel, greenView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, greenView, lightProj);
-		tdraw(spass, quad, sframe, wallModel, greenView, lightProj);
+		tdraw(spass, plane, sframe, wallModel, greenView, lightProj);
 		// Light Aggregation
 		tdraw(lspass, quad, screen, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
@@ -125,7 +133,7 @@ void main()
 		clearFramebuffer(sframe);
 		tdraw(spass, wheezer, sframe, spearModel, blueView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, blueView, lightProj);
-		tdraw(spass, quad, sframe, wallModel, blueView, lightProj);
+		tdraw(spass, plane, sframe, wallModel, blueView, lightProj);
 		// Light Aggregation
 		tdraw(lspass, quad, screen, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
