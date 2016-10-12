@@ -11,10 +11,12 @@ void main()
 	Geometry quad = makeGeometry(quad_verts, 4, quad_tris, 6);
 	Geometry spear = loadOBJ("../res/models/soulspear.obj");
 	Geometry sphere = loadOBJ("../res/models/sphere.obj");
+	Geometry wheezer = loadOBJ("../res/models/mrwheezer.obj");
 
 	Texture spear_normal = loadTexture("../res/textures/soulspear_normal.tga");
 	Texture spear_diffuse = loadTexture("../res/textures/soulspear_diffuse.tga");
 	Texture spear_specular = loadTexture("../res/textures/soulspear_specular.tga");
+	Texture noise_tex = loadTexture("../res/textures/perlin_noise.jpg");
 
 	const unsigned char norm_pixels[4] = { 127, 127, 255, 255 };
 	Texture vertex_normals = makeTexture(1, 1, 4, norm_pixels);
@@ -28,7 +30,7 @@ void main()
 	Shader gpass = loadShader("../res/shaders/gpass.vert", "../res/shaders/gpass.frag");
 	Shader lpass = loadShader("../res/shaders/lpass.vert", "../res/shaders/lpass.frag", false, true);
 	Shader toon = loadShader("../res/shaders/toon.vert", "../res/shaders/toon.frag");
-	Shader phys = loadShader("../res/shaders/phys.vert","../res/shaders/phys.frag");
+	Shader SSAO = loadShader("../res/shaders/SSAO.vert","../res/shaders/SSAO.frag");
 
 	/////////////////////////////////////////
 	//////// Shadowy Shading Shaders
@@ -42,7 +44,8 @@ void main()
 	Framebuffer gframe = makeFramebuffer(1280, 720, 5, flTex);
 	Framebuffer lframe = makeFramebuffer(1280, 720, 3);
 	Framebuffer nframe = makeFramebuffer(1280, 720, 1); // for blurring.
-	Framebuffer pframe = makeFramebuffer(1280, 720, 0); // post-proccessing
+	int g = 1;
+	Framebuffer aoframe = makeFramebuffer(1280, 720, 1, (bool*)&g, (int*)&g);
 
 														
 	Framebuffer sframe = makeFramebuffer(1280, 720, 0); //change shadow resolution here
@@ -59,7 +62,7 @@ void main()
 	// Light Matrices and data
 	glm::mat4 lightProj = glm::ortho<float>(-10, 10, -10, 10, -10, 10);
 
-	glm::mat4 redView = glm::lookAt(glm::normalize(-glm::vec3(1, -1, -1)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 redView = glm::lookAt(glm::normalize(-glm::vec3(1, 1, 1)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::vec4 redColor = glm::vec4(1, 0, 0, 1);
 
 	glm::mat4 greenView = glm::lookAt(glm::normalize(-glm::vec3(1, 1, -1)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -81,7 +84,7 @@ void main()
 		// Geometry Pass
 		//
 		clearFramebuffer(gframe);
-		tdraw(gpass, spear, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal);
+		tdraw(gpass, wheezer, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal);
 
 		clearFramebuffer(lframe);
 		//tdraw(phys,quad,lframe,)
@@ -100,7 +103,7 @@ void main()
 
 		// Shadow PrePass
 		clearFramebuffer(sframe);
-		tdraw(spass, spear, sframe, spearModel, redView, lightProj);
+		tdraw(spass, wheezer, sframe, spearModel, redView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, redView, lightProj);
 		tdraw(spass, quad, sframe, wallModel, redView, lightProj);
 		// Light Aggregation
@@ -108,6 +111,29 @@ void main()
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
 			gframe.colors[4], // roughness
 			sframe.depth, redColor, redView, lightProj);
+
+		clearFramebuffer(sframe);
+		tdraw(spass, wheezer, sframe, spearModel, greenView, lightProj);
+		tdraw(spass, sphere, sframe, sphereModel, greenView, lightProj);
+		tdraw(spass, quad, sframe, wallModel, greenView, lightProj);
+		// Light Aggregation
+		tdraw(lspass, quad, screen, camView,
+			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
+			gframe.colors[4], // roughness
+			sframe.depth, greenColor, greenView, lightProj);
+
+		clearFramebuffer(sframe);
+		tdraw(spass, wheezer, sframe, spearModel, blueView, lightProj);
+		tdraw(spass, sphere, sframe, sphereModel, blueView, lightProj);
+		tdraw(spass, quad, sframe, wallModel, blueView, lightProj);
+		// Light Aggregation
+		tdraw(lspass, quad, screen, camView,
+			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
+			gframe.colors[4], // roughness
+			sframe.depth, blueColor, blueView, lightProj);
+
+		clearFramebuffer(aoframe);
+		tdraw(SSAO, quad, aoframe, gframe.colors[1], gframe.colors[2], noise_tex);
 		/*
 		//////////////////////////
 		// Green light!

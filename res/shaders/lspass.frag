@@ -72,7 +72,7 @@ void main()
 	float lamb = OrenNayar(roughness,-L, N, E); // max(0,-dot(L, N));
 	float spec = CookTorrance(roughness,-L,N,E,1);
 
-	if (vUV.y < .5f) lamb = max(0,-dot(L, N));
+	//if (vUV.y < .5f) lamb = max(0,-dot(L, N));
 
 	//if(lamb > .66) lamb = 1;
 	//else if(lamb > .25) lamb = .5;
