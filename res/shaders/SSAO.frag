@@ -27,8 +27,8 @@ void main()
 	float aoTerm = 0;
 	for(int i = 0; i < 4; ++i)
 	{
-		vec2 C1 = reflect(O[i], R);
-		vec2 C2 = rot2deg(45) * C1;
+		vec2 C1 = rot2deg(30) * reflect(O[i],R);
+		vec2 C2 = rot2deg(60) * reflect(O[i],R);
 
 		aoTerm += occlusionTest(positionMap, vUV, C1*.25, P, N);
 	    aoTerm += occlusionTest(positionMap, vUV, C2*.50, P, N);
@@ -44,10 +44,11 @@ void main()
 // OV is some arbitrary offset
 float occlusionTest(in sampler2D positionMap, in vec2 UV,in vec2 OS, in vec3 P, in vec3 N)
 {
+	vec3 po = texture(positionMap,UV+OS).xyz;
 	// direction between sampled position and our current position
-	vec3 V = normalize(P - texture(positionMap, UV+OS).xyz);
+	vec3 V = normalize(P - po);
 
 	// if that direction lines up with our normal, we are occluded by that amount.
 	// Kinda similar to lambert calculation!
-	return max(0, dot(N,V));
+	return max(0, dot(N,V)/(1+length(P-po))*1.25);
 }

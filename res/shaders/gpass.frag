@@ -8,6 +8,7 @@ layout(location = 3) uniform sampler2D diffuseMap;
 layout(location = 4) uniform sampler2D normalMap;
 layout(location = 5) uniform sampler2D specularMap;
 layout(location = 6) uniform sampler2D roughnessMap;
+layout(location = 7) uniform samplerCube cubeAmbient;
 
 mat3 cotangent_frame(in vec3 N, in vec3 p, in vec2 uv);
 
@@ -31,8 +32,9 @@ void main()
 
 	albedo   = texture(diffuseMap, vUV);
 	normal   = vec4(N,0);
-	specular = texture(specularMap, vUV);
+	specular = texture(cubeAmbient,N);
 	position = vec4(vPosition,LinearizeDepth(gl_FragCoord.z));
+	position.a = 1;
 	out_rough = texture(roughnessMap, vUV);
 	
 }

@@ -22,3 +22,6 @@ void freeTexture(Texture &);
 
 struct Framebuffer makeFramebuffer(unsigned width, unsigned height, unsigned nColors, bool *isfloat = nullptr, int *channels = nullptr);
 void freeFramebuffer(Framebuffer &);
+
+struct CubeTexture makeCubeTexture(unsigned width, unsigned height, unsigned channels,
+	const void **pixels = nullptr, bool isFloat = false);

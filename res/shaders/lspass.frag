@@ -50,6 +50,7 @@ void main()
 
 	float roughness = texture(roughnessMap, vUV).r;
 
+	if(P.a == 0) discard;
 	
 	/////////////////////////////////////////////////////
 	/////// Shadow Map calculations
@@ -60,8 +61,9 @@ void main()
 
 	// compare the sampled Z value against our projected Z position.
 	// if the sample is closer, we don't draw in the shadow.
+	float visibility = 1;
 	if(texture(shadowMap, sUV.xy).r < sUV.z - shadowBias)
-		discard;
+		visibility = 0;
 
 	/////////////////////////////////////////////////////
 	/////// Phong calculations
@@ -89,10 +91,12 @@ void main()
 	//else if(spec > .25) spec = .5;
 	//else if(spec > 0) spec = .25;
 
-	outAlbedo   = texture(albedoMap,   vUV) * lamb * lCol;
-	outSpecular = texture(specularMap, vUV) * spec * lCol;
-	outColor    =  outAlbedo + outSpecular + (1 - vec4(rimLighting,0))*lCol;
+	outAlbedo   = texture(albedoMap,   vUV) * lamb * lCol * visibility;
+	outSpecular = texture(specularMap, vUV) * spec * lCol * visibility;
+	outColor    =  outAlbedo + outSpecular + (1 - vec4(rimLighting,0))*lCol*visibility;
 	//outColor.rgb = rimLighting;
+
+	outColor.a = 1;
 }
 
 

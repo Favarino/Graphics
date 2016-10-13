@@ -25,6 +25,12 @@ struct Texture
 	int width, height, format;
 };
 
+struct CubeTexture
+{
+	unsigned handle;
+	unsigned width, height, format;
+};
+
 struct Framebuffer
 {
 	unsigned handle;

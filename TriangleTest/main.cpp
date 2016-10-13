@@ -9,10 +9,11 @@ void main()
 	context.init(1280, 720);
 
 	Geometry quad = makeGeometry(quad_verts, 4, quad_tris, 6);
-	Geometry spear = loadOBJ("../res/models/soulspear.obj");
+	//Geometry spear = loadOBJ("../res/models/soulspear.obj");
 	Geometry sphere = loadOBJ("../res/models/sphere.obj");
 	Geometry wheezer = loadOBJ("../res/models/mrwheezer.obj");
 	Geometry plane = generateGrid(64, 64);
+	Geometry cube = loadOBJ("../res/models/cube.obj");
 
 	Texture spear_normal = loadTexture("../res/textures/soulspear_normal.tga");
 	Texture spear_diffuse = loadTexture("../res/textures/soulspear_diffuse.tga");
@@ -34,18 +35,25 @@ void main()
 	Shader toon = loadShader("../res/shaders/toon.vert", "../res/shaders/toon.frag");
 	Shader SSAO = loadShader("../res/shaders/SSAO.vert","../res/shaders/SSAO.frag");
 	Shader noise = loadShader("../res/shaders/noise.vert", "../res/shaders/noise.frag",true,false,false);
+	Shader cubePass = loadShader("../res/shaders/cube.vert", "../res/shaders/cube.frag", false, false, false);
 
+
+	Shader compositePass = loadShader("../res/shaders/comp.vert","../res/shaders/comp.frag");
 	/////////////////////////////////////////
 	//////// Shadowy Shading Shaders
 	Shader spass = loadShader("../res/shaders/spass.vert", "../res/shaders/spass.frag", true, false, false);
 	Shader lspass = loadShader("../res/shaders/lspass.vert", "../res/shaders/lspass.frag", false, true);
-
+	CubeTexture cbmp = loadCubeMap("../res/textures/stormydays_rt.tga", "../res/textures/stormydays_lf.tga",
+		"../res/textures/stormydays_up.tga", "../res/textures/stormydays_dn.tga",
+		"../res/textures/stormydays_bk.tga", "../res/textures/stormydays_ft.tga");
 
 	Framebuffer screen = { 0, 1280, 720 };
 
-	bool flTex[] = { false, true, false, true, false };
-	Framebuffer gframe = makeFramebuffer(1280, 720, 5, flTex);
+	bool isFTex[] = { false, true, false, true};
+	Framebuffer gframe = makeFramebuffer(1280, 720, 5, isFTex);
 	Framebuffer lframe = makeFramebuffer(1280, 720, 3);
+	Framebuffer skyboxFrame = makeFramebuffer(1280, 720, 1);
+
 	Framebuffer nframe = makeFramebuffer(1280, 720, 1); // for blurring.
 	int g = 1;
 	Framebuffer aoframe = makeFramebuffer(1280, 720, 1, (bool*)&g, (int*)&g);
@@ -83,24 +91,30 @@ void main()
 
 	while (context.step())
 	{
-		time += 0.016f;
+		time += 0.001f;
 		spearModel = glm::rotate(time, glm::vec3(0, 1, 0)) * glm::translate(glm::vec3(0, -1, 0));
-
+		glm::mat4 cubeBox = camProj * glm::scale(glm::vec3(5, 5, 5))*glm::rotate(time, glm::vec3(0, 1, 0));
+		
+		// Draw to framebuffer!
+		tdraw(cubePass, cube, skyboxFrame, cubeBox, cbmp);
+		
+		
 		//glm::mat4 camProj = glm::perspective(50.f, 1280.f / 720, 1.f, 100.f);
 		//spearModel = glm::translate(glm::vec3(0, -1, 0));
 		/////////////////////////////////////////////////////
 		// Geometry Pass
 		//
 		clearFramebuffer(gframe);
-		tdraw(gpass, wheezer, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal);
+		tdraw(gpass, wheezer, gframe, spearModel, camView, camProj, spear_diffuse, spear_normal, spear_specular, spear_normal,cbmp);
 		//tdraw(noise, plane, gframe, camProj, camView, wallModel, gen_noise);
 		tdraw(noise, plane, gframe, camProj, camView, /*wallModel*/ planeModel, gen_noise);
 		//tdraw(phys,quad,lframe,)
-		tdraw(gpass, sphere, gframe, sphereModel, camView, camProj, white, vertex_normals, white, vertex_normals);
-		tdraw(gpass, quad, gframe, wallModel, camView, camProj, white, vertex_normals, white, vertex_normals);
+		tdraw(gpass, sphere, gframe, sphereModel, camView, camProj, white, vertex_normals, white, vertex_normals, cbmp);
+		tdraw(gpass, quad, gframe, wallModel, camView, camProj, white, vertex_normals, white, vertex_normals, cbmp);
 
 		//tdraw(blur, quad, nframe, gframe.colors[1]);
-
+		clearFramebuffer(aoframe);
+		tdraw(SSAO, quad, aoframe, gframe.colors[1], gframe.colors[2], noise_tex);
 		/////////////////////////////////////////////////////
 		//// Light pass!
 		/**/
@@ -115,7 +129,7 @@ void main()
 		tdraw(spass, sphere, sframe, sphereModel, redView, lightProj);
 		tdraw(spass, plane, sframe, wallModel, redView, lightProj);
 		// Light Aggregation
-		tdraw(lspass, quad, screen, camView,
+		tdraw(lspass, quad, lframe, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
 			gframe.colors[4], // roughness
 			sframe.depth, redColor, redView, lightProj);
@@ -124,8 +138,10 @@ void main()
 		tdraw(spass, wheezer, sframe, spearModel, greenView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, greenView, lightProj);
 		tdraw(spass, plane, sframe, wallModel, greenView, lightProj);
+
 		// Light Aggregation
-		tdraw(lspass, quad, screen, camView,
+		// Draw to a light framebuffer
+		tdraw(lspass, quad, lframe, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
 			gframe.colors[4], // roughness
 			sframe.depth, greenColor, greenView, lightProj);
@@ -134,14 +150,18 @@ void main()
 		tdraw(spass, wheezer, sframe, spearModel, blueView, lightProj);
 		tdraw(spass, sphere, sframe, sphereModel, blueView, lightProj);
 		tdraw(spass, plane, sframe, wallModel, blueView, lightProj);
+
 		// Light Aggregation
-		tdraw(lspass, quad, screen, camView,
+		// Draw to a light framebuffer
+		tdraw(lspass, quad, lframe, camView,
 			gframe.colors[0], gframe.colors[1], gframe.colors[2], gframe.colors[3],
 			gframe.colors[4], // roughness
 			sframe.depth, blueColor, blueView, lightProj);
 
-		clearFramebuffer(aoframe);
-		tdraw(SSAO, quad, aoframe, gframe.colors[1], gframe.colors[2], noise_tex);
+		
+
+
+		tdraw(compositePass, quad, screen, lframe.colors[0], skyboxFrame.colors[0]);
 		/*
 		//////////////////////////
 		// Green light!

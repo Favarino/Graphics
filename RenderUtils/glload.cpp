@@ -12,7 +12,8 @@
 #include <fstream>
 #include <istream>
 #include <string>
-
+#include <algorithm>
+#include "glload.h"
 std::string cppStyleFileToString(const char *path)
 {
 	glog("loading shader", path);
@@ -51,7 +52,30 @@ Texture loadTexture(const char *path)
 	return retval;
 }
 
+CubeTexture loadCubeMap(const char * path_Xpos, const char * path_Xneg, const char * path_Ypos, const char * path_Yneg, const char * path_Zpos, const char * path_Zneg)
+{
+	stbi_set_flip_vertically_on_load(true);
+	int w[6], h[6], f[6];
 
+	unsigned char *pixels[6];
+	pixels[0] = stbi_load(path_Xpos, w + 0, h + 0, f + 0, STBI_default);
+	pixels[1] = stbi_load(path_Xneg, w + 1, h + 1, f + 1, STBI_default);
+	pixels[2] = stbi_load(path_Ypos, w + 2, h + 2, f + 2, STBI_default);
+	pixels[3] = stbi_load(path_Yneg, w + 3, h + 3, f + 3, STBI_default);
+	pixels[4] = stbi_load(path_Zpos, w + 4, h + 4, f + 4, STBI_default);
+	pixels[5] = stbi_load(path_Zneg, w + 5, h + 5, f + 5, STBI_default);
+
+	bool valid =
+		std::min(w + 0, w + 6) == std::max(w + 0, w + 6) &&
+		std::min(h + 0, h + 6) == std::max(h + 0, h + 6) &&
+		std::min(f + 0, f + 6) == std::max(f + 0, f + 6);
+
+	CubeTexture retval = makeCubeTexture(w[0], h[0], f[0], (const void**)pixels, false);
+
+	for (int i = 0; i < 6; ++i) stbi_image_free(pixels[i]);
+
+	return retval;
+}
 Geometry loadOBJ(const char *path)
 {
 	glog("TODO", "Eliminate redundant vertices.");

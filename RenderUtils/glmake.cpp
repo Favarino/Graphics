@@ -116,7 +116,40 @@ Texture makeTexture(unsigned width, unsigned height, unsigned channels, const vo
 
 	return retval;
 }
+CubeTexture makeCubeTexture(unsigned width, unsigned height, unsigned channels, const void **pixels, bool isFloat)
+{
+	CubeTexture retval = { 0, width, height, channels };
 
+	GLenum eformat = GL_RGBA; // Number of channels goes.
+	GLenum iformat = isFloat ? GL_RGBA32F : eformat; // number of channels and the type.
+	switch (channels)
+	{
+	case 0: eformat = GL_DEPTH_COMPONENT; iformat = GL_DEPTH24_STENCIL8; break;
+
+	case 1: eformat = GL_RED;  iformat = isFloat ? GL_R32F : eformat; break;
+	case 2: eformat = GL_RG;   iformat = isFloat ? GL_RG32F : eformat; break;
+	case 3: eformat = GL_RGB;  iformat = isFloat ? GL_RGB32F : eformat; break;
+	case 4: eformat = GL_RGBA; iformat = isFloat ? GL_RGBA32F : eformat; break;
+	default: glog("ERROR", "Channels must be 0-4");
+	}
+
+	glGenTextures(1, &retval.handle);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, retval.handle);
+
+	for (unsigned i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, iformat, width, height, 0, eformat, isFloat ? GL_FLOAT : GL_UNSIGNED_BYTE, pixels[i]);
+
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	return retval;
+}
 Texture makeTextureF(unsigned square, const float * pixels)
 {
 	glog("TODO", "DEPRECATE ME.");

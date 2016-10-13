@@ -5,12 +5,15 @@
 #include "GLM\glm.hpp"
 #include "GLM\ext.hpp"
 
+
 void clearFramebuffer(const Framebuffer & r)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, r.handle);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+
 void useShaderFlags(const Shader &s)
 {
 	if (s.depthTest)
@@ -50,40 +53,59 @@ void tdraw_internal::tdraw_close(const Shader & s, const Geometry & g, const Fra
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::mat4 & val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, const glm::mat4 & val)
 {
 	glUniformMatrix4fv(idx, 1, GL_FALSE, glm::value_ptr(val));
-	return 0;
+	idx++;
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::vec3 & val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, const glm::vec3 & val)
 {
 	glUniform3fv(idx, 1, glm::value_ptr(val));
-	return 0;
+	idx++;
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const glm::vec4 & val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, const glm::vec4 & val)
 {
 	glUniform4fv(idx, 1, glm::value_ptr(val));
-	return 0;
+	idx++;
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, int val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, int val)
 {
 	glUniform1i(idx, val);
-	return 0;
+	idx++;
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, float val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, float val)
 {
 	glUniform1f(idx, val);
-	return 0;
+	idx++;
 }
 
-size_t tdraw_internal::tdraw_format(size_t idx, size_t tex, const Texture & val)
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, const Texture & val)
 {
 	glActiveTexture(GL_TEXTURE0 + tex);
 	glBindTexture(GL_TEXTURE_2D, val.handle);
 	glUniform1i(idx, tex);
-	return 1;
+	idx++;
+	tex++;
+}
+
+void tdraw_internal::tdraw_format(size_t &idx, size_t &tex, const CubeTexture & val)
+{
+	glActiveTexture(GL_TEXTURE0 + tex);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, val.handle);
+	glUniform1i(idx, tex);
+	idx++;
+	tex++;
+}
+
+void tdraw_internal::tdraw_format(size_t & idx, size_t & tex, const Framebuffer & val)
+{
+
+	for (int i = 0; i < val.nColors; ++i)
+		tdraw_internal::tdraw_format(idx, tex, val.colors[i]);
+
+
 }
